@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "../components/ui/card.jsx";
-import { Button } from "../components/ui/button.jsx";
+import { Card, CardContent } from "./components/ui/card.jsx";
+import { Button } from "./components/ui/button.jsx";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {

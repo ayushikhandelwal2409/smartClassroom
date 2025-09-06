@@ -1,5 +1,5 @@
 import React from "react";
-import LoginCard from "../components/LoginCard";
+import LoginCard from "./components/LoginCard";
 
 const StudentLogin = () => {
   return <LoginCard role="Student" demoEmail="john.student@college.edu" />;
