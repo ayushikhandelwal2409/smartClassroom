@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https:// ayushikhandelwal2409.github.io/smartClassroom/",
+  "homepage": "https://ayushikhandelwal2409.github.io/smartClassroom/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
