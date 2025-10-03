@@ -1,0 +1,7 @@
+.env
+
+node_modules
+
+seed.js
+
+package-lock.json
