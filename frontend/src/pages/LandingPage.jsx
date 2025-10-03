@@ -15,6 +15,9 @@ export default function LandingPage() {
             <a href="#features" className="hover:underline">Features</a>
             <a href="#about" className="hover:underline">About</a>
             <a href="#contact" className="hover:underline">Contact</a>
+             <Link to="/signup" className="hover:underline">
+              Sign Up
+            </Link>
           </nav>
         </div>
       </header>

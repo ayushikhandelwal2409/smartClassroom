@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
+  // user
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+ 
+// calender state
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -74,6 +81,58 @@ const StudentDashboard = () => {
     );
   };
 
+   // logout function
+  const handleLogout = () => {
+  // Remove the token from storage
+  localStorage.removeItem('token');
+  // Navigate back to the landing page
+  navigate('/');
+};
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // If no token, redirect to login
+        navigate('/student');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/me', {
+          method: 'GET',
+          headers: {
+            'x-auth-token': token,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data); // Save user data in state
+        } else {
+          // If token is invalid, clear it and redirect
+          localStorage.removeItem('token');
+          navigate('/student');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        navigate('/student');
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
+
+  // Add a loading state while user data is being fetched
+  if (!user) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-50">
+        <p className="text-xl">Loading profile...</p>
+      </div>
+    );
+  }
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
@@ -110,11 +169,12 @@ const StudentDashboard = () => {
             <div className="flex items-center space-x-2">
               <User className="w-6 h-6" />
               <div>
-                <p className="font-medium">John Smith</p>
-                <p className="text-sm text-gray-200">Computer Science</p>
+                {/* user info */}
+                <p className="font-medium">{user.firstName} {user.lastName}</p>
+                <p className="text-sm text-gray-200">{user.department}</p>
               </div>
             </div>
-            <button className="flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
+            <button onClick={handleLogout} className="flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
             </button>
@@ -129,7 +189,8 @@ const StudentDashboard = () => {
           {/* Welcome Card */}
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold">✨ Hey John! 👋</h2>
+              {/* user info */}
+              <h2 className="text-xl font-semibold">✨ Hey {user.firstName}! 👋</h2>
               <p className="text-sm mt-2">
                 Education is the most powerful weapon which you can use to
                 change the world.
@@ -326,7 +387,7 @@ const StudentDashboard = () => {
           {selectedDate && (
             <div className="mt-3 pt-3 border-t border-gray-200">
               <p className="text-xs text-gray-600">
-                Selected: {selectedDate.toLocaleDateString('en-US', {
+                Today: {selectedDate.toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
