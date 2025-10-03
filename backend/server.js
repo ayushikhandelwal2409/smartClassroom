@@ -40,9 +40,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- Server Listener ---
 // Define the port the server will listen on
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // Start the server and listen for incoming requests
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
