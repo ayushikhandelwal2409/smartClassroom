@@ -10,8 +10,17 @@ require('../models/Room');
 // POST api/schedules
 // create a new class schedule (Admin)
 router.post('/', auth, async (req, res) => {
-  
-    // admin role validation
+
+  // ensure only teachers can create schedules; adjust if you have an admin role
+  try {
+    const requestingUser = await User.findById(req.user.id).select('role');
+    if (!requestingUser || requestingUser.role !== 'teacher') {
+      return res.status(403).json({ msg: 'Forbidden: Only teachers can create schedules.' });
+    }
+  } catch (roleErr) {
+    console.error(roleErr.message);
+    return res.status(500).send('Server Error');
+  }
 
   const { course, teacher, room, dayOfWeek, startTime, endTime, year, section } = req.body;
 
@@ -21,9 +30,9 @@ router.post('/', auth, async (req, res) => {
     const roomConflict = await ClassSchedule.findOne({
       room,
       dayOfWeek,
-      $or: [
-        { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
-      ]
+      // overlap if existing.start < new.end AND existing.end > new.start
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime }
     });
 
     if (roomConflict) {
@@ -34,10 +43,9 @@ router.post('/', auth, async (req, res) => {
     const teacherConflict = await ClassSchedule.findOne({
       teacher,
       dayOfWeek,
-      // this query checks for any time overlap between existing and new classes.
-      $or: [
-        { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
-      ]
+      // overlap if existing.start < new.end AND existing.end > new.start
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime }
     });
 
     if (teacherConflict) {

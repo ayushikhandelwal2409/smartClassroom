@@ -9,7 +9,12 @@ const authRoutes = require('./routes/auth');
 const scheduleRoutes = require('./routes/schedule');
 
 // environment variables from .env file
-dotenv.config();
+dotenv.config({ path: './.env' });
+
+// Fallback values if .env doesn't load
+process.env.PORT = process.env.PORT || '5000';
+process.env.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smartclassroom';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_here';
 
 const app = express();
 
