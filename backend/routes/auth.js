@@ -32,7 +32,7 @@ router.post('/register', (req, res) => {
       return res.status(400).json({ msg: 'Error: No File Selected!' });
     }
 
-    const { firstName, lastName, email, password, role, studentId, department, year, teacherId, title } = req.body;
+    const { firstName, lastName, email, password, role, studentId, department, year, section, teacherId, title } = req.body;
     
     try {
       // user exist or not
@@ -52,6 +52,7 @@ router.post('/register', (req, res) => {
         studentId: role === 'student' ? studentId : undefined,
         department,
         year: role === 'student' ? year : undefined,
+        section: role === 'student' ? section : undefined,
         teacherId: role === 'teacher' ? teacherId : undefined,
         title: role === 'teacher' ? title : undefined,
       });
