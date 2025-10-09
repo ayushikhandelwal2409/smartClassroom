@@ -81,7 +81,7 @@ router.get('/teacher/me', auth, async (req, res) => {
     const schedule = await ClassSchedule.find({ teacher: req.user.id })
       .sort({ startTime: 1 })
       .populate('course', ['name', 'code'])
-      .populate('room', ['roomNumber', 'block']);
+      .populate('room', ['roomNumber', 'block', 'floor']);
     res.json(schedule);
   } catch (err) {
     console.error(err.message);

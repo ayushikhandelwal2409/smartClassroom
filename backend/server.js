@@ -7,6 +7,9 @@ const connectDB = require('./config/db'); // database connection
 // routes
 const authRoutes = require('./routes/auth');
 const scheduleRoutes = require('./routes/schedule');
+const sectionRoutes = require('./routes/sections');
+const buildingBlockRoutes = require('./routes/buildingBlocks');
+const roomRoutes = require('./routes/rooms');
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -38,6 +41,9 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 
 app.use('/api/schedules', scheduleRoutes);
+app.use('/api/sections', sectionRoutes);
+app.use('/api/building-blocks', buildingBlockRoutes);
+app.use('/api/rooms', roomRoutes);
 
 // --- Serve Static Files ---
 // Make the 'uploads' folder publicly accessible to serve profile images

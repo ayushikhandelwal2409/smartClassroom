@@ -21,7 +21,10 @@ const TeacherDashboard = () => {
   const [students, setStudents] = useState([]);
 
   // Timetable state
-  const [timetableData, setTimetableData] = useState({});
+  const [timeSlots, setTimeSlots] = useState([]); // from building blocks (6 per day)
+  const [teacherSchedule, setTeacherSchedule] = useState([]); // entries from /api/schedules/teacher/me
+  const [sections, setSections] = useState([]); // from /api/sections
+  const [todaySubjects, setTodaySubjects] = useState([]); // entries for today mapped to timeSlots
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -30,14 +33,25 @@ const TeacherDashboard = () => {
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const workingDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  const fullDayMap = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' };
 
-  // Generate time slots from 8:00 to 18:00
-  const timeSlots = [];
-  for (let hour = 8; hour < 18; hour++) {
-    const startTime = `${hour.toString().padStart(2, '0')}:00`;
-    const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
-    timeSlots.push(`${startTime} - ${endTime}`);
-  }
+  // helper: render timeslot label
+  const to12h = (hhmm) => {
+    if (!hhmm) return '';
+    const [hStr, m] = hhmm.split(':');
+    const h = parseInt(hStr, 10);
+    const suffix = h >= 12 ? 'PM' : 'AM';
+    const h12 = ((h + 11) % 12) + 1;
+    return `${h12.toString().padStart(2,'0')}:${m} ${suffix}`;
+  };
+  const formatSlot = (slot) => slot ? `${to12h(slot.start)} - ${to12h(slot.end)}` : '';
+  const getSubjectFor = (fullDay, slotIndex) => {
+    if (!sections || sections.length === 0) return '—';
+    const reference = sections[0];
+    const dayEntry = reference?.timetable?.find(d => d.day === fullDay);
+    const subj = dayEntry?.slots?.[slotIndex];
+    return subj || '—';
+  };
 
   // Sample data for classes and students
   const classes = ['3A', '3B', '4A', '4B', '5A'];
@@ -311,6 +325,22 @@ const TeacherDashboard = () => {
               <Clock className="w-6 h-6 mr-2" />
               Timetable
             </h3>
+            {/* Today's Classes summary */}
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold mb-2">Today's Classes</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {timeSlots.map((slot, idx) => (
+                  <div key={idx} className={`p-3 rounded border ${slot.isLunch ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className="text-sm font-medium mb-1">{formatSlot(slot)}</div>
+                    {slot.isLunch ? (
+                      <div className="text-yellow-700 text-sm font-semibold">Lunch</div>
+                    ) : (
+                      <div className="text-sm text-gray-700">{todaySubjects[idx] || '—'}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
             
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-gray-300">
@@ -325,21 +355,43 @@ const TeacherDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {timeSlots.map((timeSlot, index) => (
+                  {timeSlots.map((slot, index) => (
                     <tr key={index}>
                       <td className="border border-gray-300 p-3 font-medium bg-gray-50">
-                        {timeSlot}
+                        {formatSlot(slot)}
                       </td>
-                      {workingDays.map((day) => (
-                        <td key={day} className="border border-gray-300 p-3 text-center">
-                          <div className="min-h-[60px] flex items-center justify-center">
-                            {/* Sample subject data would go here */}
-                            <span className="text-sm text-gray-500">
-                              {Math.random() > 0.7 ? 'Math' : ''}
-                            </span>
-                          </div>
-                        </td>
-                      ))}
+                      {workingDays.map((day) => {
+                        const fullDay = fullDayMap[day];
+                        const entry = teacherSchedule.find(e => e.dayOfWeek === fullDay && e.startTime === slot.start && e.endTime === slot.end);
+                        return (
+                          <td key={day} className={`border border-gray-300 p-3 text-center ${slot.isLunch ? 'bg-yellow-50' : ''}`}>
+                            <div className="min-h-[60px] flex items-center justify-center">
+                              {slot.isLunch || todaySubjects[index] === 'Lunch' ? (
+                                <span className="text-sm font-semibold text-yellow-700">Lunch</span>
+                              ) : (
+                                <div className="text-sm">
+                                  {entry ? (
+                                    <>
+                                      <div className="font-semibold">
+                                        {(entry.course?.name || 'Class')}
+                                        {entry.course?.code ? ` (${entry.course.code})` : ''}
+                                      </div>
+                                      <div className="text-gray-500">
+                                        Section {entry.section || '—'} • {entry.room?.block} {entry.room?.roomNumber}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="font-semibold">{getSubjectFor(fullDay, index)}</div>
+                                      <div className="text-gray-400">Section — • —</div>
+                                    </>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -505,6 +557,13 @@ const TeacherDashboard = () => {
         if (response.ok) {
           const data = await response.json();
           setUser(data);
+          // after user loads, fetch timetable metadata and schedule
+          await Promise.all([
+            fetchBuildingBlocks(token),
+            fetchTeacherSchedule(token),
+            fetchSections(token)
+          ]);
+          computeTodaySubjects();
         } else {
           localStorage.removeItem('token');
           navigate('/teacher');
@@ -517,6 +576,92 @@ const TeacherDashboard = () => {
 
     fetchUserData();
   }, [navigate]);
+
+  const fetchBuildingBlocks = async (token) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/building-blocks', {
+        headers: { 'x-auth-token': token }
+      });
+      if (res.ok) {
+        const blocks = await res.json();
+        const block = blocks && blocks[0];
+        const slots = block?.timeSlots || [];
+        if (slots.length === 0) {
+          // fallback to default 6 slots so UI is visible even without seeded data
+          setTimeSlots([
+            { index: 1, start: '10:00', end: '11:00' },
+            { index: 2, start: '11:00', end: '12:00' },
+            { index: 3, start: '12:00', end: '13:00' },
+            { index: 4, start: '13:00', end: '14:00' },
+            { index: 5, start: '14:00', end: '15:00' },
+            { index: 6, start: '15:00', end: '16:00' }
+          ]);
+        } else {
+          setTimeSlots(slots);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load building blocks', e);
+      // network error fallback
+      setTimeSlots([
+        { index: 1, start: '10:00', end: '11:00' },
+        { index: 2, start: '11:00', end: '12:00' },
+        { index: 3, start: '12:00', end: '13:00' },
+        { index: 4, start: '13:00', end: '14:00' },
+        { index: 5, start: '14:00', end: '15:00' },
+        { index: 6, start: '15:00', end: '16:00' }
+      ]);
+    }
+  };
+
+  const fetchTeacherSchedule = async (token) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/schedules/teacher/me', {
+        headers: { 'x-auth-token': token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTeacherSchedule(data || []);
+      }
+    } catch (e) {
+      console.error('Failed to load teacher schedule', e);
+    }
+  };
+
+  const fetchSections = async (token) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/sections', {
+        headers: { 'x-auth-token': token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSections(data || []);
+      }
+    } catch (e) {
+      console.error('Failed to load sections', e);
+    }
+  };
+
+  const computeTodaySubjects = () => {
+    if (!sections || sections.length === 0 || timeSlots.length === 0) {
+      setTodaySubjects([]);
+      return;
+    }
+    const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    // Combine per-section timetables; for a teacher we might filter later by teacher's subject
+    // For now, we take the first section's timetable as reference
+    const reference = sections[0];
+    const dayEntry = reference?.timetable?.find(d => d.day === todayName);
+    const slots = dayEntry?.slots || [];
+    // Ensure 6 entries
+    const arr = Array.from({ length: timeSlots.length || 7 }, (_, i) => slots[i] || (i === 3 ? 'Lunch' : '—'));
+    setTodaySubjects(arr);
+  };
+
+  useEffect(() => {
+    // recompute when slots or sections change
+    computeTodaySubjects();
+  }, [sections, timeSlots]);
 
   if (!user) {
     return (
