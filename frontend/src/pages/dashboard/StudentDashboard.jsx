@@ -312,6 +312,111 @@ const StudentDashboard = () => {
                 </div>
               </div>
             </>
+          ) : activeSection === 'faq' ? (
+            <div className="bg-white p-6 rounded-xl shadow">
+              <h3 className="text-xl font-bold mb-4">FAQ</h3>
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">🧭 General</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-medium">Q1. What is the Student College Portal?</p>
+                      <p className="text-gray-700">It’s an online platform where students can access academic information, attendance, grades, announcements, and other campus services in one place.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q2. How do I log in to the portal?</p>
+                      <p className="text-gray-700">Use your college-provided email ID or enrollment number and the default password sent to your registered email. You’ll be asked to change your password after your first login.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q3. I forgot my password. What should I do?</p>
+                      <p className="text-gray-700">Click “Forgot Password” on the login page. Enter your registered email — you’ll receive a password reset link.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q4. Can I access the portal from my phone?</p>
+                      <p className="text-gray-700">Yes, the portal is mobile-friendly. You can access it via any browser, or download the official app if your college provides one.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">📚 Academics</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-medium">Q5. Where can I view my attendance?</p>
+                      <p className="text-gray-700">Navigate to Academics → Attendance Report to see your subject-wise attendance percentage.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q6. How do I check my internal marks or exam results?</p>
+                      <p className="text-gray-700">Go to Academics → Marks / Results. Both mid-term and final results are available once published by the faculty.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q7. Can I download my timetable or syllabus?</p>
+                      <p className="text-gray-700">Yes. Go to Academics → Timetable or Academics → Course Materials to download your syllabus and weekly schedule in PDF format.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">👩‍🏫 Faculty Interaction</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-medium">Q8. How can I contact my course faculty?</p>
+                      <p className="text-gray-700">Each faculty’s email and contact info are listed under Faculty → Directory. You can also message them directly through the portal’s “Message Faculty” feature if enabled.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q9. I raised a query but didn’t get a response. What should I do?</p>
+                      <p className="text-gray-700">Wait for 24–48 hours. If you still don’t get a reply, contact your class coordinator or the academic office.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">💳 Fees & Documents</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-medium">Q10. How can I pay my fees online?</p>
+                      <p className="text-gray-700">Go to Finance → Fee Payment. Choose your semester, verify the amount, and pay using debit/credit card, UPI, or net banking.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q11. Can I download my fee receipt?</p>
+                      <p className="text-gray-700">Yes. After a successful payment, go to Finance → Receipts and click “Download PDF”.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q12. Where can I download my ID card or Bonafide Certificate?</p>
+                      <p className="text-gray-700">Check Documents → Certificates section. Some documents may require admin approval before download.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">🧾 Technical Help</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-medium">Q13. The portal is not loading or showing an error. What can I do?</p>
+                      <p className="text-gray-700">Try clearing your browser cache and cookies, or use another browser. If the issue persists, report it through Help → Report Issue.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q14. My profile details are incorrect. How can I update them?</p>
+                      <p className="text-gray-700">Basic info (like address or contact number) can be edited in Profile → Edit Details. For major corrections (like name or DOB), contact the admin office.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold mb-2">🕒 Miscellaneous</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-medium">Q15. When will new features or updates be added?</p>
+                      <p className="text-gray-700">The portal is updated periodically. Major updates are announced via the Notice Board or your college email.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Q16. Can parents/guardians access the portal?</p>
+                      <p className="text-gray-700">Some colleges offer a Parent Login to monitor attendance and performance. Check with your admin if that feature is enabled.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="bg-white p-6 rounded-xl shadow">
               <h3 className="text-xl font-bold mb-2">{activeSection.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</h3>
