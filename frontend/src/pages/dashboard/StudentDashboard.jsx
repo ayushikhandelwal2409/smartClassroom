@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Users, AlertTriangle, MapPin, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
   // user
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  // main content state (left menu)
+  const [activeSection, setActiveSection] = useState('home');
 
  
 // calender state
@@ -135,43 +138,18 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
+      {/* Navbar (no center links) */}
       <header className="bg-blue-600 text-white shadow">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold">College Portal</h1>
-
-          <nav className="hidden md:flex space-x-6">
-            <a href="#" className="hover:underline">
-              Home
-            </a>
-            <a href="#" className="hover:underline">
-              Time Table
-            </a>
-            <a href="#" className="hover:underline">
-              Attendance
-            </a>
-            <a href="#" className="hover:underline">
-              Lost & Found
-            </a>
-            <a href="#" className="hover:underline">
-              Room Occupancy
-            </a>
-            <a href="#" className="hover:underline">
-              Rent a Room
-            </a>
-            <a href="#" className="hover:underline">
-              FAQ
-            </a>
-          </nav>
 
           {/* Profile + Logout */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <User className="w-6 h-6" />
               <div>
-                {/* user info */}
                 <p className="font-medium">{user.firstName} {user.lastName}</p>
-                <p className="text-sm text-gray-200">{user.department}</p>
+                <p className="text-sm text-gray-2 00">{user.department}</p>
               </div>
             </div>
             <button onClick={handleLogout} className="flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
@@ -184,157 +162,162 @@ const StudentDashboard = () => {
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Content */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Welcome Card */}
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
-            <div>
-              {/* user info */}
-              <h2 className="text-xl font-semibold">✨ Hey {user.firstName}! 👋</h2>
-              <p className="text-sm mt-2">
-                Education is the most powerful weapon which you can use to
-                change the world.
-              </p>
-            </div>
-            <img
-              src="https://img.freepik.com/free-vector/graduation-concept-illustration_114360-6266.jpg"
-              alt="Graduation"
-              className="w-32 rounded-lg"
-            />
+        {/* Left Sidebar Menu */}
+        <div className="lg:col-span-1">
+          <div className="bg-white p-4 rounded-xl shadow">
+            <h3 className="text-lg font-bold mb-4">Menu</h3>
+            <nav className="space-y-2">
+              <button
+                onClick={() => setActiveSection('home')}
+                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                  activeSection === 'home'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Home
+              </button>
+              <button
+                onClick={() => setActiveSection('timetable')}
+                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                  activeSection === 'timetable'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                Time Table
+              </button>
+              <button
+                onClick={() => setActiveSection('attendance')}
+                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                  activeSection === 'attendance'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Attendance
+              </button>
+              <button
+                onClick={() => setActiveSection('lost-found')}
+                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                  activeSection === 'lost-found'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <AlertTriangle className="w-4 h-4 mr-2" />
+                Lost & Found
+              </button>
+              <button
+                onClick={() => setActiveSection('room-occupancy')}
+                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                  activeSection === 'room-occupancy'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Room Occupancy
+              </button>
+              <button
+                onClick={() => setActiveSection('rent-room')}
+                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                  activeSection === 'rent-room'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Rent a Room
+              </button>
+              <button
+                onClick={() => setActiveSection('faq')}
+                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                  activeSection === 'faq'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                FAQ
+              </button>
+            </nav>
           </div>
+        </div>
 
-          {/* Upcoming Events */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">Upcoming Events & Notices</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Event Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
-                  <CalendarDays className="w-5 h-5" />
-                  <span>Event</span>
+        {/* Center Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {activeSection === 'home' ? (
+            <>
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold">✨ Hey {user.firstName}! 👋</h2>
+                  <p className="text-sm mt-2">
+                    Education is the most powerful weapon which you can use to
+                    change the world.
+                  </p>
                 </div>
-                <h4 className="text-lg font-semibold">Tech Fest 2025</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Annual technology festival with competitions and workshops
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Saturday, February 15, 2025 • 📍 Main Campus
-                </p>
+                <img
+                  src="https://img.freepik.com/free-vector/graduation-concept-illustration_114360-6266.jpg"
+                  alt="Graduation"
+                  className="w-32 rounded-lg"
+                />
               </div>
 
-              {/* Hackathon Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-purple-600 font-semibold mb-2">
-                  ⚡<span>Hackathon</span>
-                </div>
-                <h4 className="text-lg font-semibold">AI/ML Hackathon</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  48-hour coding competition focused on AI and Machine Learning
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Saturday, January 25, 2025 • 📍 Computer Lab
-                </p>
-              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-4">Upcoming Events & Notices</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="bg-white p-5 rounded-xl shadow">
+                    <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
+                      <CalendarDays className="w-5 h-5" />
+                      <span>Event</span>
+                    </div>
+                    <h4 className="text-lg font-semibold">Tech Fest 2025</h4>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Annual technology festival with competitions and workshops
+                    </p>
+                    <p className="text-gray-500 text-xs mt-3">
+                      📅 Saturday, February 15, 2025 • 📍 Main Campus
+                    </p>
+                  </div>
 
-              {/* Workshop Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-green-600 font-semibold mb-2">
-                  🛠️<span>Workshop</span>
-                </div>
-                <h4 className="text-lg font-semibold">React Development Workshop</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Learn modern React development with hooks and best practices
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Monday, January 20, 2025 • 📍 Tech Center
-                </p>
-              </div>
+                  <div className="bg-white p-5 rounded-xl shadow">
+                    <div className="flex items-center space-x-2 text-purple-600 font-semibold mb-2">
+                      ⚡<span>Hackathon</span>
+                    </div>
+                    <h4 className="text-lg font-semibold">AI/ML Hackathon</h4>
+                    <p className="text-gray-600 text-sm mt-1">
+                      48-hour coding competition focused on AI and Machine Learning
+                    </p>
+                    <p className="text-gray-500 text-xs mt-3">
+                      📅 Saturday, January 25, 2025 • 📍 Computer Lab
+                    </p>
+                  </div>
 
-              {/* Seminar Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-orange-600 font-semibold mb-2">
-                  🎓<span>Seminar</span>
+                  <div className="bg-white p-5 rounded-xl shadow">
+                    <div className="flex items-center space-x-2 text-green-600 font-semibold mb-2">
+                      🛠️<span>Workshop</span>
+                    </div>
+                    <h4 className="text-lg font-semibold">React Development Workshop</h4>
+                    <p className="text-gray-600 text-sm mt-1">
+                      Learn modern React development with hooks and best practices
+                    </p>
+                    <p className="text-gray-500 text-xs mt-3">
+                      📅 Monday, January 20, 2025 • 📍 Tech Center
+                    </p>
+                  </div>
                 </div>
-                <h4 className="text-lg font-semibold">Career Guidance Session</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Industry experts sharing insights on career paths in tech
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Friday, January 17, 2025 • 📍 Auditorium
-                </p>
               </div>
-
-              {/* Sports Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-red-600 font-semibold mb-2">
-                  ⚽<span>Sports</span>
-                </div>
-                <h4 className="text-lg font-semibold">Inter-College Football Tournament</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Annual football championship with teams from 15 colleges
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Sunday, January 26, 2025 • 📍 Sports Complex
-                </p>
-              </div>
-
-              {/* Cultural Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-pink-600 font-semibold mb-2">
-                  🎭<span>Cultural</span>
-                </div>
-                <h4 className="text-lg font-semibold">Cultural Night 2025</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Music, dance, and drama performances by talented students
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Saturday, February 1, 2025 • 📍 Open Air Theater
-                </p>
-              </div>
-
-              {/* Library Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-indigo-600 font-semibold mb-2">
-                  📚<span>Library</span>
-                </div>
-                <h4 className="text-lg font-semibold">New Book Collection Launch</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Explore our latest collection of 500+ new books and e-resources
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Wednesday, January 22, 2025 • 📍 Central Library
-                </p>
-              </div>
-
-              {/* Exam Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-yellow-600 font-semibold mb-2">
-                  📝<span>Academic</span>
-                </div>
-                <h4 className="text-lg font-semibold">Mid-Term Examinations</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Important dates and guidelines for upcoming mid-term exams
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Monday, February 3, 2025 • 📍 Various Classrooms
-                </p>
-              </div>
-
-              {/* Research Card */}
-              <div className="bg-white p-5 rounded-xl shadow">
-                <div className="flex items-center space-x-2 text-teal-600 font-semibold mb-2">
-                  🔬<span>Research</span>
-                </div>
-                <h4 className="text-lg font-semibold">Research Paper Presentation</h4>
-                <p className="text-gray-600 text-sm mt-1">
-                  Students showcase their innovative research projects and findings
-                </p>
-                <p className="text-gray-500 text-xs mt-3">
-                  📅 Thursday, January 30, 2025 • 📍 Research Center
-                </p>
-              </div>
+            </>
+          ) : (
+            <div className="bg-white p-6 rounded-xl shadow">
+              <h3 className="text-xl font-bold mb-2">{activeSection.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</h3>
+              <p className="text-gray-600">This section will be available soon.</p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right Sidebar (Calendar) */}
@@ -383,19 +366,7 @@ const StudentDashboard = () => {
               </div>
             ))}
           </div>
-          
-          {selectedDate && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <p className="text-xs text-gray-600">
-                Today: {selectedDate.toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
-            </div>
-          )}
+
         </aside>
       </main>
     </div>
