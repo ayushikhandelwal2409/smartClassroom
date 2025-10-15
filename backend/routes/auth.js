@@ -2,15 +2,25 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const Student = require('../models/Student'); // adjust path if needed
+const Teacher = require('../models/Teacher');
 const upload = require('../middleware/upload'); 
 const auth = require('../middleware/auth'); 
 
-//POST api/auth/me 
-// about me
+// GET api/auth/me - Get logged in user info
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password'); 
+    const { id, role } = req.user || {};
+    if (!id) return res.status(401).json({ msg: 'Unauthorized' });
+
+    let user = null;
+    if (role === 'Teacher') {
+      user = await Teacher.findById(id).select('-password');
+    } else {
+      user = await Student.findById(id).select('-password');
+    }
+
+    if (!user) return res.status(404).json({ msg: 'User not found' });
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -18,54 +28,45 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-//POST api/auth/register 
-// new user register
+// POST api/auth/register - Register new student
 router.post('/register', (req, res) => {
-  // upload middleware
   upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ msg: err });
-    }
-    
-    // if no file uploaded
-    if (req.file == undefined) {
-      return res.status(400).json({ msg: 'Error: No File Selected!' });
-    }
+    if (err) return res.status(400).json({ msg: err });
 
-    const { firstName, lastName, email, password, role, studentId, department, year, section, teacherId, title } = req.body;
-    
+    if (!req.file) return res.status(400).json({ msg: 'Error: No File Selected!' });
+
+    const { Name, email, password, studentId, section } = req.body;
+
     try {
-      // user exist or not
-      let user = await User.findOne({ email });
-      if (user) {
-        return res.status(400).json({ msg: 'User with this email already exists' });
-      }
+      let user = await Student.findOne({ email });
+      if (user) return res.status(400).json({ msg: 'User with this email already exists' });
 
-      // new user
-      const newUser = new User({
-        firstName,
-        lastName,
+      const newUser = new Student({
+        Name,
         email,
         password,
-        role,
-        profileImage: req.file.path, // path of img
-        studentId: role === 'student' ? studentId : undefined,
-        department,
-        year: role === 'student' ? year : undefined,
-        section: role === 'student' ? section : undefined,
-        teacherId: role === 'teacher' ? teacherId : undefined,
-        title: role === 'teacher' ? title : undefined,
+        studentId,
+        section,
+        image: req.file.path
       });
 
-      // hash password
+      // Hash password
+      const salt = await bcrypt.genSalt(10);
+      newUser.password = await bcrypt.hash(newUser.password, salt);
+
       await newUser.save();
 
-      // create and return JWT token
+      // Create JWT token
       const payload = { user: { id: newUser.id } };
-      jwt.sign(payload, process.env.JWT_SECRET || 'your_default_secret', { expiresIn: 3600 }, (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      });
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET || 'your_default_secret',
+        { expiresIn: 3600 },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
 
     } catch (err) {
       console.error(err.message);
@@ -74,56 +75,58 @@ router.post('/register', (req, res) => {
   });
 });
 
-// auth user,  get token
+// POST api/auth/login - Authenticate user (student/teacher) with 10-digit ID and get token
 router.post('/login', async (req, res) => {
-  const { email, password, role} = req.body;
+  const { userId, password, role } = req.body;
 
-  // validate
-  if (!email || !password || !role) {
-    return res.status(400).json({ msg: 'Please enter all fields' });
+  if (!userId || !password || !role) {
+    return res.status(400).json({ msg: 'Please provide userId, password, and role' });
+  }
+
+  // Validate numeric ID length by role
+  const idString = String(userId);
+  const isStudent = role === 'Student';
+  const isTeacher = role === 'Teacher';
+  if (!/^\d+$/.test(idString)) {
+    return res.status(400).json({ msg: 'User ID must be numeric' });
+  }
+  if (isStudent && idString.length !== 10) {
+    return res.status(400).json({ msg: 'Student ID must be 10 digits' });
+  }
+  if (isTeacher && idString.length !== 6) {
+    return res.status(400).json({ msg: 'Teacher ID must be 6 digits' });
   }
 
   try {
-    // this check if user exists or not
-    const user = await User.findOne({ email });
-    if (!user) {
-      // error
-      return res.status(400).json({ msg: 'Invalid Credentials' });
+    let user = null;
+    if (isStudent) {
+      user = await Student.findOne({ studentId: Number(idString) });
+    } else if (isTeacher) {
+      user = await Teacher.findOne({ teacherId: Number(idString) });
+    } else {
+      return res.status(400).json({ msg: 'Invalid role' });
     }
 
-    // this check if the user is student or teacher
-    if(user.role != role.toLowerCase()){
-      return res.status(403).json({msg: 'Access denied. Please use the correct portal.'})
-    }
+    if (!user) return res.status(400).json({ msg: 'Invalid credentials' });
 
-    // compare password with db hashed password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid Credentials' });
-    }
+    if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
-    // If password matches, create and return JWT
-    const payload = {
-      user: {
-        id: user.id, // user id from db
-      },
-    };
-
+    const payload = { user: { id: user.id, role } };
     jwt.sign(
       payload,
       process.env.JWT_SECRET || 'your_default_secret',
-      { expiresIn: 3600 }, // expires in 1 h
+      { expiresIn: 3600 },
       (err, token) => {
         if (err) throw err;
-        res.json({ token }); // send token to client
+        res.json({ token });
       }
     );
+
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server Error');
   }
 });
-
-
 
 module.exports = router;

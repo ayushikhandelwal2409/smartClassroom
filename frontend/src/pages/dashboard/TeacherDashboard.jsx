@@ -542,7 +542,7 @@ const TeacherDashboard = () => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        navigate('/teacher');
+        navigate('/teacher/dashboard');
         return;
       }
 
@@ -566,11 +566,11 @@ const TeacherDashboard = () => {
           computeTodaySubjects();
         } else {
           localStorage.removeItem('token');
-          navigate('/teacher');
+          navigate('/teacher/dashboard');
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        navigate('/teacher');
+        navigate('/teacher/dashboard');
       }
     };
 

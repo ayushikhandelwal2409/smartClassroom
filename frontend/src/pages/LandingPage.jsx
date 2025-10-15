@@ -1,29 +1,62 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent } from "./components/ui/card.jsx";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card } from "./components/ui/card.jsx";
 import { Button } from "./components/ui/button.jsx";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const [role, setRole] = useState("Student");
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, password, role })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        if (role === 'Student') {
+          navigate('/student/dashboard');
+        } else if (role === 'Teacher') {
+          navigate('/teacher/dashboard');
+        } else {
+          navigate('/');
+        }
+      } else {
+        alert(data.msg || 'Invalid credentials');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Could not connect to the server. Please try again later.');
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
-      <header className="w-full bg-blue-700 text-white py-4 shadow-md">
+      <header className="w-full bg-blue-700 text-white py-4 shadow-md fixed top-0 left-0 right-0 z-50">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6">
           <h1 className="text-2xl font-bold">Smart Classroom</h1>
-          <nav className="space-x-6 hidden md:block">
+          <nav className="space-x-6 hidden md:flex items-center">
             <a href="#features" className="hover:underline">Features</a>
             <a href="#about" className="hover:underline">About</a>
             <a href="#contact" className="hover:underline">Contact</a>
-             <Link to="/signup" className="hover:underline">
-              Sign Up
-            </Link>
+            <a href="#login" className="ml-6 inline-block bg-white text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition">Login</a>
           </nav>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center text-center py-20 bg-gradient-to-r from-blue-100 via-white to-blue-100">
+      <section className="flex flex-col items-center justify-center text-center py-24 md:py-28 bg-gradient-to-r from-blue-100 via-white to-blue-100 relative overflow-hidden mt-16">
+        {/* Decorative academic illustration */}
+        <div className="pointer-events-none absolute -top-10 -right-10 w-72 h-72 bg-blue-200 rounded-full opacity-30 blur-3xl"></div>
+        <div className="pointer-events-none absolute -bottom-10 -left-10 w-72 h-72 bg-purple-200 rounded-full opacity-30 blur-3xl"></div>
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -36,48 +69,79 @@ export default function LandingPage() {
           A modern digital platform for students, teachers, and admins to connect, learn, and manage academic resources efficiently.
         </p>
 
-        {/* Login Options */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-          <Card className="shadow-lg rounded-2xl">
-            <CardContent className="flex flex-col items-center p-6">
-              <h2 className="text-2xl font-semibold text-blue-600 mb-4">Student</h2>
-              <p className="text-gray-600 text-center mb-6">
-                Access your classes, notes, and assignments.
-              </p>
-              <Link to="/student">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
-                  Student Login
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg rounded-2xl">
-            <CardContent className="flex flex-col items-center p-6">
-              <h2 className="text-2xl font-semibold text-green-600 mb-4">Teacher</h2>
-              <p className="text-gray-600 text-center mb-6">
-                Manage classes, upload materials, and track student progress.
-              </p>
-              <Link to="/teacher">
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white rounded-xl">
-                  Teacher Login
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-lg rounded-2xl">
-            <CardContent className="flex flex-col items-center p-6">
-              <h2 className="text-2xl font-semibold text-red-600 mb-4">Admin</h2>
-              <p className="text-gray-600 text-center mb-6">
-                Control users, settings, and overall management.
-              </p>
-              <Link to="/admin">
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl">
-                  Admin Login
-                </Button>
-              </Link>
-            </CardContent>
+        {/* Centered Login Box */}
+        <div id="login" className="w-full max-w-md">
+          <Card className="shadow-xl rounded-2xl p-8 bg-white/90 backdrop-blur">
+            <form className="space-y-4 text-left" onSubmit={handleLogin}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <select
+                  value={role}
+                  onChange={(e) => {
+                    const newRole = e.target.value;
+                    setRole(newRole);
+                    setUserId("");
+                  }}
+                  className="mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+                >
+                  <option>Student</option>
+                  <option>Teacher</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">User ID</label>
+                <input
+                  type="text"
+                  placeholder={role === 'Teacher' ? '6-digit ID' : '10-digit ID'}
+                  value={userId}
+                  onChange={(e) => {
+                    const maxLen = role === 'Teacher' ? 6 : 10;
+                    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, maxLen);
+                    setUserId(value);
+                  }}
+                  inputMode="numeric"
+                  pattern={role === 'Teacher' ? "\\d{6}" : "\\d{10}"}
+                  required
+                  className="mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="mt-1 block w-full px-4 py-2 pr-10 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                  >
+                    {/* Eye icon */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      {showPassword ? (
+                        <>
+                          <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5 0-9.27-3.11-11-8 1.02-2.79 2.98-5.1 5.39-6.59" />
+                          <path d="M1 1l22 22" />
+                          <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-.88" />
+                        </>
+                      ) : (
+                        <>
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </>
+                      )}
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Login</Button>
+            </form>
           </Card>
         </div>
       </section>

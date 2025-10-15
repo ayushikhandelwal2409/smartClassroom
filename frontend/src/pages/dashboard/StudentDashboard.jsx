@@ -96,8 +96,7 @@ const StudentDashboard = () => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        // If no token, redirect to login
-        navigate('/student');
+        navigate('/');
         return;
       }
 
@@ -113,13 +112,12 @@ const StudentDashboard = () => {
           const data = await response.json();
           setUser(data); // Save user data in state
         } else {
-          // If token is invalid, clear it and redirect
           localStorage.removeItem('token');
-          navigate('/student');
+          navigate('/');
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        navigate('/student');
+        navigate('/');
       }
     };
 

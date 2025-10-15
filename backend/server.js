@@ -3,13 +3,14 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path'); 
 const connectDB = require('./config/db'); // database connection
+const seedStudents = require('./seedStudent'); // function to seed students
+const seed = require('./seedSelection'); // function to seed selections
+const seedTeachers = require('./seedTeacher'); // function to seed teachers
+const seedCourses = require('./seedSubject'); // function to seed courses
+const seedBlocks = require('./seedBlock'); // function to seed blocks
 
 // routes
 const authRoutes = require('./routes/auth');
-const scheduleRoutes = require('./routes/schedule');
-const sectionRoutes = require('./routes/sections');
-const buildingBlockRoutes = require('./routes/buildingBlocks');
-const roomRoutes = require('./routes/rooms');
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -23,6 +24,11 @@ const app = express();
 
 // connect toMongoDB
 connectDB();
+// seedStudents(); // Seed the database with initial student data
+// seed();
+// seedTeachers();
+// seedCourses();
+// seedBlocks();
 
 // middleware
 
@@ -40,10 +46,6 @@ app.get('/', (req, res) => {
 // auth routes ( login, register, me)
 app.use('/api/auth', authRoutes);
 
-app.use('/api/schedules', scheduleRoutes);
-app.use('/api/sections', sectionRoutes);
-app.use('/api/building-blocks', buildingBlockRoutes);
-app.use('/api/rooms', roomRoutes);
 
 // --- Serve Static Files ---
 // Make the 'uploads' folder publicly accessible to serve profile images

@@ -5,8 +5,9 @@ import { useNavigate, Link } from "react-router-dom";
 const LoginCard = ({ role, demoEmail }) => {
   // for new user
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
 
   const handleLogin = async (event) => {
@@ -18,7 +19,7 @@ const LoginCard = ({ role, demoEmail }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, role}),
+        body: JSON.stringify({ userId, password, role}),
       });
 
       const data = await response.json();
@@ -86,48 +87,67 @@ const LoginCard = ({ role, demoEmail }) => {
         {/* connect with handlelogin */}
         <form className="space-y-4" onSubmit={handleLogin}>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700">User ID</label>
             <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder={role === 'Teacher' ? '6-digit ID' : '10-digit ID'}
+              value={userId}
+              onChange={(e) => {
+                const maxLen = role === 'Teacher' ? 6 : 10;
+                const value = e.target.value.replace(/[^0-9]/g, '').slice(0, maxLen);
+                setUserId(value);
+              }}
+              inputMode="numeric"
+              pattern={role === 'Teacher' ? "\\\\d{6}" : "\\\\d{10}"}
               required
               className="mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="mt-1 block w-full px-4 py-2 pr-10 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {showPassword ? (
+                    <>
+                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5 0-9.27-3.11-11-8 1.02-2.79 2.98-5.1 5.39-6.59" />
+                      <path d="M1 1l22 22" />
+                      <path d="M9.88 9.88A3 3 0 0 0 12 15a3 3 0 0 0 2.12-.88" />
+                    </>
+                  ) : (
+                    <>
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </>
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
           >
-            Sign In
+            Login
           </button>
         </form>
 
-        {/* Signup Link */}
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-medium text-blue-600 hover:underline">
-            Sign Up
-          </Link>
-        </p>
+        {/* Signup removed */}
 
         {/* Forgot password */}
         <p className="mt-4 text-center text-sm text-gray-500 hover:underline cursor-pointer">
