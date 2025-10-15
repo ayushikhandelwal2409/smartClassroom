@@ -11,6 +11,7 @@ const seedBlocks = require('./seedBlock'); // function to seed blocks
 
 // routes
 const authRoutes = require('./routes/auth');
+const timetableRoutes = require('./routes/timetable');
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -45,6 +46,8 @@ app.get('/', (req, res) => {
 
 // auth routes ( login, register, me)
 app.use('/api/auth', authRoutes);
+// timetable routes
+app.use('/api/timetable', timetableRoutes);
 
 
 // --- Serve Static Files ---

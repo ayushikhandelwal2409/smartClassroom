@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import TimeTable from "./components/TimeTable";
 import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Users, AlertTriangle, MapPin, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -310,6 +311,8 @@ const StudentDashboard = () => {
                 </div>
               </div>
             </>
+          ) : activeSection === 'timetable' ? (
+            <TimeTable section={user.section} />
           ) : activeSection === 'faq' ? (
             <div className="bg-white p-6 rounded-xl shadow">
               <h3 className="text-xl font-bold mb-4">FAQ</h3>
