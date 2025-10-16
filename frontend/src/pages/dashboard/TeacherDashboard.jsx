@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import TeacherTimeTable from "./components/TeacherTimeTable";
 
 const TeacherDashboard = () => {
   // user
@@ -320,84 +321,11 @@ const TeacherDashboard = () => {
 
       case 'timetable':
         return (
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h3 className="text-xl font-bold mb-6 flex items-center">
-              <Clock className="w-6 h-6 mr-2" />
-              Timetable
-            </h3>
-            {/* Today's Classes summary */}
-            <div className="mb-6">
-              <h4 className="text-lg font-semibold mb-2">Today's Classes</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {timeSlots.map((slot, idx) => (
-                  <div key={idx} className={`p-3 rounded border ${slot.isLunch ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'}`}>
-                    <div className="text-sm font-medium mb-1">{formatSlot(slot)}</div>
-                    {slot.isLunch ? (
-                      <div className="text-yellow-700 text-sm font-semibold">Lunch</div>
-                    ) : (
-                      <div className="text-sm text-gray-700">{todaySubjects[idx] || '—'}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="border border-gray-300 p-3 text-left font-semibold">Time</th>
-                    {workingDays.map((day) => (
-                      <th key={day} className="border border-gray-300 p-3 text-center font-semibold">
-                        {day}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {timeSlots.map((slot, index) => (
-                    <tr key={index}>
-                      <td className="border border-gray-300 p-3 font-medium bg-gray-50">
-                        {formatSlot(slot)}
-                      </td>
-                      {workingDays.map((day) => {
-                        const fullDay = fullDayMap[day];
-                        const entry = teacherSchedule.find(e => e.dayOfWeek === fullDay && e.startTime === slot.start && e.endTime === slot.end);
-                        return (
-                          <td key={day} className={`border border-gray-300 p-3 text-center ${slot.isLunch ? 'bg-yellow-50' : ''}`}>
-                            <div className="min-h-[60px] flex items-center justify-center">
-                              {slot.isLunch || todaySubjects[index] === 'Lunch' ? (
-                                <span className="text-sm font-semibold text-yellow-700">Lunch</span>
-                              ) : (
-                                <div className="text-sm">
-                                  {entry ? (
-                                    <>
-                                      <div className="font-semibold">
-                                        {(entry.course?.name || 'Class')}
-                                        {entry.course?.code ? ` (${entry.course.code})` : ''}
-                                      </div>
-                                      <div className="text-gray-500">
-                                        Section {entry.section || '—'} • {entry.room?.block} {entry.room?.roomNumber}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <div className="font-semibold">{getSubjectFor(fullDay, index)}</div>
-                                      <div className="text-gray-400">Section — • —</div>
-                                    </>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <TeacherTimeTable 
+            teacherId={user?.teacherId}
+            sectionsToTeach={user?.sectionsToTeach}
+            subjectTaught={user?.subjectTaught}
+          />
         );
 
       case 'swap-room':
@@ -472,7 +400,7 @@ const TeacherDashboard = () => {
             {/* Welcome Card */}
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold">✨ Hey {user?.firstName || 'John'}! 👋</h2>
+                <h2 className="text-xl font-semibold">✨ Hey {user?.Name || 'John'}! 👋</h2>
                 <p className="text-sm mt-2">
                   Education is the most powerful weapon which you can use to
                   change the world.
@@ -683,8 +611,8 @@ const TeacherDashboard = () => {
             <div className="flex items-center space-x-2">
               <User className="w-6 h-6" />
               <div>
-                <p className="font-medium">{user.firstName} {user.lastName}</p>
-                <p className="text-sm text-gray-200">{user.department}</p>
+                <p className="font-medium">{user.Name}</p>
+                <p className="text-sm text-gray-200">Teacher</p>
               </div>
             </div>
             <button onClick={handleLogout} className="flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
@@ -696,9 +624,9 @@ const TeacherDashboard = () => {
       </header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Sidebar Menu */}
-        <div className="lg:col-span-1">
+      <main className="w-full px-6 py-8 flex gap-6">
+        {/* Left Sidebar Menu - 20% width */}
+        <div className="w-1/5 flex-shrink-0">
           <div className="bg-white p-4 rounded-xl shadow">
             <h3 className="text-lg font-bold mb-4">Menu</h3>
             <nav className="space-y-2">
@@ -761,13 +689,14 @@ const TeacherDashboard = () => {
           </div>
         </div>
 
-        {/* Right Content */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Center Content - 60% width */}
+        <div className="w-3/5 space-y-6">
           {renderMainContent()}
         </div>
 
-        {/* Right Sidebar (Calendar) */}
-        <aside className="bg-white p-4 rounded-xl shadow">
+        {/* Right Sidebar (Calendar) - 20% width */}
+        <aside className="w-1/5 flex-shrink-0">
+          <div className="bg-white p-4 rounded-xl shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-bold">
               {months[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -812,8 +741,7 @@ const TeacherDashboard = () => {
               </div>
             ))}
           </div>
-          
-          
+          </div>
         </aside>
       </main>
     </div>

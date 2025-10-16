@@ -147,8 +147,8 @@ const StudentDashboard = () => {
             <div className="flex items-center space-x-2">
               <User className="w-6 h-6" />
               <div>
-                <p className="font-medium">{user.firstName} {user.lastName}</p>
-                <p className="text-sm text-gray-2 00">{user.department}</p>
+                <p className="font-medium">{user.Name}</p>
+                <p className="text-sm text-gray-200">Student</p>
               </div>
             </div>
             <button onClick={handleLogout} className="flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
@@ -160,9 +160,9 @@ const StudentDashboard = () => {
       </header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Sidebar Menu */}
-        <div className="lg:col-span-1">
+      <main className="w-full px-6 py-8 flex gap-6">
+        {/* Left Sidebar Menu - 20% width */}
+        <div className="w-1/5 flex-shrink-0">
           <div className="bg-white p-4 rounded-xl shadow">
             <h3 className="text-lg font-bold mb-4">Menu</h3>
             <nav className="space-y-2">
@@ -247,13 +247,13 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* Center Content */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Center Content - 60% width */}
+        <div className="w-3/5 space-y-6">
           {activeSection === 'home' ? (
             <>
               <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold">✨ Hey {user.firstName}! 👋</h2>
+                  <h2 className="text-xl font-semibold">✨ Hey {user.Name}! 👋</h2>
                   <p className="text-sm mt-2">
                     Education is the most powerful weapon which you can use to
                     change the world.
@@ -426,8 +426,9 @@ const StudentDashboard = () => {
           )}
         </div>
 
-        {/* Right Sidebar (Calendar) */}
-        <aside className="bg-white p-4 rounded-xl shadow">
+        {/* Right Sidebar (Calendar) - 20% width */}
+        <aside className="w-1/5 flex-shrink-0">
+          <div className="bg-white p-4 rounded-xl shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-bold">
               {months[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -472,7 +473,7 @@ const StudentDashboard = () => {
               </div>
             ))}
           </div>
-
+          </div>
         </aside>
       </main>
     </div>

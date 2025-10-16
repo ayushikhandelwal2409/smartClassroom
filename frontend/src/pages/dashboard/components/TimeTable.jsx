@@ -28,11 +28,11 @@ function buildMatrix(timetable) {
   return { timeOrder, dayToTimeMap };
 }
 
-const Cell = ({ slot }) => {
+const Cell = ({ slot, isCurrentDay }) => {
   const hasData = slot && (slot.subjectCode || slot.roomNumber || slot.academicBlock);
-  if (!hasData) return <td className="border p-3 align-top text-sm text-gray-500" />;
+  if (!hasData) return <td className={`border p-3 align-top text-sm text-gray-500 ${isCurrentDay ? 'bg-green-100' : ''}`} />;
   return (
-    <td className="border p-3 align-top">
+    <td className={`border p-3 align-top ${isCurrentDay ? 'bg-green-100' : ''}`}>
       <div className="text-sm font-semibold text-gray-800">{slot.subjectCode}</div>
       <div className="text-xs text-gray-600">Room: {slot.roomNumber}</div>
       <div className="text-xs text-gray-600">Block: {slot.academicBlock}</div>
@@ -44,6 +44,15 @@ const TimeTable = ({ section }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [timetable, setTimetable] = useState([]);
+
+  // Get current day
+  const getCurrentDay = () => {
+    const today = new Date();
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return dayNames[today.getDay()];
+  };
+
+  const currentDay = getCurrentDay();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -98,7 +107,16 @@ const TimeTable = ({ section }) => {
             <tr>
               <th className="border p-3 w-48 text-left bg-gray-50">Time</th>
               {DAYS.map((d) => (
-                <th key={d} className="border p-3 text-left bg-gray-50">{d}</th>
+                <th 
+                  key={d} 
+                  className={`border p-3 text-left ${
+                    d === currentDay 
+                      ? 'bg-green-600 text-white font-bold' 
+                      : 'bg-gray-50'
+                  }`}
+                >
+                  {d}
+                </th>
               ))}
             </tr>
           </thead>
@@ -107,7 +125,11 @@ const TimeTable = ({ section }) => {
               <tr key={time}>
                 <td className="border p-3 font-medium text-sm bg-gray-50">{time}</td>
                 {DAYS.map((day) => (
-                  <Cell key={day} slot={(dayToTimeMap[day] || {})[time]} />
+                  <Cell 
+                    key={day} 
+                    slot={(dayToTimeMap[day] || {})[time]} 
+                    isCurrentDay={day === currentDay}
+                  />
                 ))}
               </tr>
             ))}
