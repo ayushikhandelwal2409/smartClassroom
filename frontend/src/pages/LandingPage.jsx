@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import bgVideo from "../assets/Untitled design (online-video-cutter.com).mp4";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "./components/ui/card.jsx";
 import { Button } from "./components/ui/button.jsx";
@@ -54,6 +55,16 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="flex flex-col items-center justify-center text-center py-24 md:py-28 bg-gradient-to-r from-blue-100 via-white to-blue-100 relative overflow-hidden mt-16">
+        {/* Background Video (between navbar and login) */}
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={bgVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className="absolute inset-0 bg-white/40" />
         {/* Decorative academic illustration */}
         <div className="pointer-events-none absolute -top-10 -right-10 w-72 h-72 bg-blue-200 rounded-full opacity-30 blur-3xl"></div>
         <div className="pointer-events-none absolute -bottom-10 -left-10 w-72 h-72 bg-purple-200 rounded-full opacity-30 blur-3xl"></div>
