@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home } from "lucide-react";
+import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home, X, Mail, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TeacherTimeTable from "./components/TeacherTimeTable";
 
@@ -10,6 +10,9 @@ const TeacherDashboard = () => {
 
   // Main content state
   const [activeSection, setActiveSection] = useState('home');
+
+  // Profile sidebar state
+  const [showProfileSidebar, setShowProfileSidebar] = useState(false);
 
   // Calendar state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -608,8 +611,29 @@ const TeacherDashboard = () => {
 
           {/* Profile + Logout */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <User className="w-6 h-6" />
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:bg-blue-700 px-3 py-2 rounded-lg transition-all duration-200"
+              onClick={() => setShowProfileSidebar(true)}
+            >
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
+                {user.image ? (
+                  <img 
+                    src={`http://localhost:5000/${user.image}`} 
+                    alt={user.Name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`w-full h-full rounded-full bg-blue-500 flex items-center justify-center ${user.image ? 'hidden' : ''}`}
+                  style={user.image ? { display: 'none' } : {}}
+                >
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              </div>
               <div>
                 <p className="font-medium">{user.Name}</p>
                 <p className="text-sm text-gray-200">Teacher</p>
@@ -744,6 +768,163 @@ const TeacherDashboard = () => {
           </div>
         </aside>
       </main>
+
+      {/* Profile Sidebar */}
+      {showProfileSidebar && (
+        <>
+          {/* Backdrop - Blur only, no dark overlay */}
+          <div 
+            className="fixed inset-0 bg-transparent backdrop-blur-md z-40 transition-opacity"
+            onClick={() => setShowProfileSidebar(false)}
+          ></div>
+          
+          {/* Sidebar */}
+          <div className="fixed right-0 top-0 h-[calc(100vh-4rem)] w-96 bg-gradient-to-b from-blue-50 via-white to-gray-50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-800">Profile</h2>
+                <button
+                  onClick={() => setShowProfileSidebar(false)}
+                  className="p-2 hover:bg-gray-200 rounded-full transition"
+                >
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Profile Image - Clickable */}
+              <div className="flex justify-center mb-6">
+                <div 
+                  className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 p-1 cursor-pointer hover:scale-105 transition-transform shadow-lg"
+                  onClick={() => {
+                    if (user.image) {
+                      window.open(`${user.image}`, '_blank');
+                    }
+                  }}
+                >
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative">
+                    {user.image ? (
+                      <>
+                        <img 
+                          src={`http://localhost:5000/${user.image}`} 
+                          alt={user.Name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            const fallback = e.target.parentElement.querySelector('.fallback-icon');
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                        <div 
+                          className="fallback-icon w-full h-full rounded-full bg-blue-500 flex items-center justify-center absolute inset-0"
+                          style={{ display: 'none' }}
+                        >
+                          <User className="w-16 h-16 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-blue-500 flex items-center justify-center">
+                        <User className="w-16 h-16 text-white" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* User Information */}
+              <div className="space-y-4">
+                {/* Name Card */}
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-5 rounded-xl shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                      <Briefcase className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-100">Full Name</p>
+                      <p className="text-xl font-bold">{user.Name}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Details Card */}
+                <div className="bg-white border-2 border-gray-100 p-5 rounded-xl shadow-md space-y-4">
+                  <div className="flex items-center space-x-3 pb-3 border-b border-gray-100">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <User className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Teacher ID</p>
+                      <p className="text-lg font-semibold text-gray-800">{user.teacherId}</p>
+                    </div>
+                  </div>
+
+                  {user.sectionsToTeach && user.sectionsToTeach.length > 0 && (
+                    <div className="flex items-start space-x-3 pb-3 border-b border-gray-100">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Sections Teaching</p>
+                        <div className="flex flex-wrap gap-2">
+                          {user.sectionsToTeach.map((section, index) => (
+                            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                              {section}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {user.subjectTaught && user.subjectTaught.length > 0 && (
+                    <div className="flex items-start space-x-3 pb-3 border-b border-gray-100">
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 text-indigo-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Subjects Teaching</p>
+                        <div className="flex flex-wrap gap-2">
+                          {user.subjectTaught.map((subject, index) => (
+                            <span key={index} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                              {subject}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {user.email && (
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <Mail className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Email</p>
+                        <p className="text-sm font-semibold text-gray-800 break-all">{user.email}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="mt-6 space-y-3">
+                <button
+                  onClick={() => {
+                    setShowProfileSidebar(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 transition font-medium shadow-md hover:shadow-lg"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

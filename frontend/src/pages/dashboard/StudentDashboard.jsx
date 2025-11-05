@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TimeTable from "./components/TimeTable";
-import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Users, AlertTriangle, MapPin, BookOpen } from "lucide-react";
+import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Users, AlertTriangle, MapPin, BookOpen, ChevronDown, ChevronUp, X, Mail, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
@@ -10,6 +10,10 @@ const StudentDashboard = () => {
 
   // main content state (left menu)
   const [activeSection, setActiveSection] = useState('home');
+  // faq accordion state
+  const [openFAQ, setOpenFAQ] = useState(null);
+  // Profile sidebar state
+  const [showProfileSidebar, setShowProfileSidebar] = useState(false);
 
  
 // calender state
@@ -144,8 +148,29 @@ const StudentDashboard = () => {
 
           {/* Profile + Logout */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <User className="w-6 h-6" />
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:bg-blue-700 px-3 py-2 rounded-lg transition-all duration-200"
+              onClick={() => setShowProfileSidebar(true)}
+            >
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
+                {user.image ? (
+                  <img 
+                    src={`http://localhost:5000/${user.image}`} 
+                    alt={user.Name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`w-full h-full rounded-full bg-blue-500 flex items-center justify-center ${user.image ? 'hidden' : ''}`}
+                  style={user.image ? { display: 'none' } : {}}
+                >
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              </div>
               <div>
                 <p className="font-medium">{user.Name}</p>
                 <p className="text-sm text-gray-200">Student</p>
@@ -314,107 +339,89 @@ const StudentDashboard = () => {
           ) : activeSection === 'timetable' ? (
             <TimeTable section={user.section} />
           ) : activeSection === 'faq' ? (
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h3 className="text-xl font-bold mb-4">FAQ</h3>
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">🧭 General</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-medium">Q1. What is the Student College Portal?</p>
-                      <p className="text-gray-700">It’s an online platform where students can access academic information, attendance, grades, announcements, and other campus services in one place.</p>
+            <div className="bg-white p-6 rounded-2xl shadow">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-2xl font-extrabold tracking-tight">Frequently Asked Questions</h3>
+              </div>
+              <div className="space-y-3">
+                {/* Item: General - Login */}
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setOpenFAQ(openFAQ === 'general' ? null : 'general')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition"
+                  >
+                    <span className="text-left font-semibold text-gray-900">How do I log in to the portal?</span>
+                    {openFAQ === 'general' ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
+                  </button>
+                  {openFAQ === 'general' && (
+                    <div className="p-4 bg-white text-sm text-gray-700">
+                      Use your Student ID (10 digits) or Teacher ID (6 digits) and your password. If you’re new, contact your coordinator to get credentials.
                     </div>
-                    <div>
-                      <p className="font-medium">Q2. How do I log in to the portal?</p>
-                      <p className="text-gray-700">Use your college-provided email ID or enrollment number and the default password sent to your registered email. You’ll be asked to change your password after your first login.</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Q3. I forgot my password. What should I do?</p>
-                      <p className="text-gray-700">Click “Forgot Password” on the login page. Enter your registered email — you’ll receive a password reset link.</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Q4. Can I access the portal from my phone?</p>
-                      <p className="text-gray-700">Yes, the portal is mobile-friendly. You can access it via any browser, or download the official app if your college provides one.</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">📚 Academics</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-medium">Q5. Where can I view my attendance?</p>
-                      <p className="text-gray-700">Navigate to Academics → Attendance Report to see your subject-wise attendance percentage.</p>
+                {/* Item: Timetable */}
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setOpenFAQ(openFAQ === 'timetable' ? null : 'timetable')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition"
+                  >
+                    <span className="text-left font-semibold text-gray-900">Where can I see my timetable?</span>
+                    {openFAQ === 'timetable' ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
+                  </button>
+                  {openFAQ === 'timetable' && (
+                    <div className="p-4 bg-white text-sm text-gray-700">
+                      Open the <span className="font-medium">Time Table</span> section from the left menu. It shows your section-wise schedule.
                     </div>
-                    <div>
-                      <p className="font-medium">Q6. How do I check my internal marks or exam results?</p>
-                      <p className="text-gray-700">Go to Academics → Marks / Results. Both mid-term and final results are available once published by the faculty.</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Q7. Can I download my timetable or syllabus?</p>
-                      <p className="text-gray-700">Yes. Go to Academics → Timetable or Academics → Course Materials to download your syllabus and weekly schedule in PDF format.</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">👩‍🏫 Faculty Interaction</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-medium">Q8. How can I contact my course faculty?</p>
-                      <p className="text-gray-700">Each faculty’s email and contact info are listed under Faculty → Directory. You can also message them directly through the portal’s “Message Faculty” feature if enabled.</p>
+                {/* Item: Attendance */}
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setOpenFAQ(openFAQ === 'attendance' ? null : 'attendance')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition"
+                  >
+                    <span className="text-left font-semibold text-gray-900">How is attendance calculated?</span>
+                    {openFAQ === 'attendance' ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
+                  </button>
+                  {openFAQ === 'attendance' && (
+                    <div className="p-4 bg-white text-sm text-gray-700">
+                      Percentage of classes attended out of total conducted per subject. Check it in the <span className="font-medium">Attendance</span> section.
                     </div>
-                    <div>
-                      <p className="font-medium">Q9. I raised a query but didn’t get a response. What should I do?</p>
-                      <p className="text-gray-700">Wait for 24–48 hours. If you still don’t get a reply, contact your class coordinator or the academic office.</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">💳 Fees & Documents</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-medium">Q10. How can I pay my fees online?</p>
-                      <p className="text-gray-700">Go to Finance → Fee Payment. Choose your semester, verify the amount, and pay using debit/credit card, UPI, or net banking.</p>
+                {/* Item: Rooms */}
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setOpenFAQ(openFAQ === 'rooms' ? null : 'rooms')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition"
+                  >
+                    <span className="text-left font-semibold text-gray-900">How do I check room availability?</span>
+                    {openFAQ === 'rooms' ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
+                  </button>
+                  {openFAQ === 'rooms' && (
+                    <div className="p-4 bg-white text-sm text-gray-700">
+                      Use <span className="font-medium">Room Occupancy</span> for live availability. For rentals, see <span className="font-medium">Rent a Room</span>.
                     </div>
-                    <div>
-                      <p className="font-medium">Q11. Can I download my fee receipt?</p>
-                      <p className="text-gray-700">Yes. After a successful payment, go to Finance → Receipts and click “Download PDF”.</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Q12. Where can I download my ID card or Bonafide Certificate?</p>
-                      <p className="text-gray-700">Check Documents → Certificates section. Some documents may require admin approval before download.</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">🧾 Technical Help</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-medium">Q13. The portal is not loading or showing an error. What can I do?</p>
-                      <p className="text-gray-700">Try clearing your browser cache and cookies, or use another browser. If the issue persists, report it through Help → Report Issue.</p>
+                {/* Item: Technical */}
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setOpenFAQ(openFAQ === 'technical' ? null : 'technical')}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-slate-50 hover:from-gray-100 hover:to-slate-100 transition"
+                  >
+                    <span className="text-left font-semibold text-gray-900">The portal isn’t loading—what should I do?</span>
+                    {openFAQ === 'technical' ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
+                  </button>
+                  {openFAQ === 'technical' && (
+                    <div className="p-4 bg-white text-sm text-gray-700">
+                      Refresh with hard reload, clear cache, or try another browser. If it continues, report via Help → Report Issue.
                     </div>
-                    <div>
-                      <p className="font-medium">Q14. My profile details are incorrect. How can I update them?</p>
-                      <p className="text-gray-700">Basic info (like address or contact number) can be edited in Profile → Edit Details. For major corrections (like name or DOB), contact the admin office.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">🕒 Miscellaneous</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-medium">Q15. When will new features or updates be added?</p>
-                      <p className="text-gray-700">The portal is updated periodically. Major updates are announced via the Notice Board or your college email.</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Q16. Can parents/guardians access the portal?</p>
-                      <p className="text-gray-700">Some colleges offer a Parent Login to monitor attendance and performance. Check with your admin if that feature is enabled.</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -476,6 +483,137 @@ const StudentDashboard = () => {
           </div>
         </aside>
       </main>
+
+      {/* Profile Sidebar */}
+      {showProfileSidebar && (
+        <>
+          {/* Backdrop - Blur only, no dark overlay */}
+          <div 
+            className="fixed inset-0 bg-transparent backdrop-blur-md z-40 transition-opacity"
+            onClick={() => setShowProfileSidebar(false)}
+          ></div>
+          
+          {/* Sidebar */}
+          <div className="fixed right-0 top-0 h-[calc(100vh-4rem)] w-96 bg-gradient-to-b from-blue-50 via-white to-gray-50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-800">Profile</h2>
+                <button
+                  onClick={() => setShowProfileSidebar(false)}
+                  className="p-2 hover:bg-gray-200 rounded-full transition"
+                >
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Profile Image - Clickable */}
+              <div className="flex justify-center mb-6">
+                <div 
+                  className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 p-1 cursor-pointer hover:scale-105 transition-transform shadow-lg"
+                  onClick={() => {
+                    if (user.image) {
+                      window.open(`${user.image}`, '_blank');
+                    }
+                  }}
+                >
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative">
+                    {user.image ? (
+                      <>
+                        <img 
+                          src={`http://localhost:5000/${user.image}`} 
+                          alt={user.Name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            const fallback = e.target.parentElement.querySelector('.fallback-icon');
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                        <div 
+                          className="fallback-icon w-full h-full rounded-full bg-blue-500 flex items-center justify-center absolute inset-0"
+                          style={{ display: 'none' }}
+                        >
+                          <User className="w-16 h-16 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-blue-500 flex items-center justify-center">
+                        <User className="w-16 h-16 text-white" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* User Information */}
+              <div className="space-y-4">
+                {/* Name Card */}
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-5 rounded-xl shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-100">Full Name</p>
+                      <p className="text-xl font-bold">{user.Name}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Details Card */}
+                <div className="bg-white border-2 border-gray-100 p-5 rounded-xl shadow-md space-y-4">
+                  <div className="flex items-center space-x-3 pb-3 border-b border-gray-100">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <User className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Student ID</p>
+                      <p className="text-lg font-semibold text-gray-800">{user.studentId}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 pb-3 border-b border-gray-100">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Section</p>
+                      <p className="text-lg font-semibold text-gray-800">{user.section}</p>
+                    </div>
+                  </div>
+
+                  {user.email && (
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <Mail className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Email</p>
+                        <p className="text-sm font-semibold text-gray-800 break-all">{user.email}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="mt-6 space-y-3">
+                <button
+                  onClick={() => {
+                    setShowProfileSidebar(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 transition font-medium shadow-md hover:shadow-lg"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

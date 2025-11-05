@@ -11,6 +11,7 @@ export default function LandingPage() {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -68,16 +69,17 @@ export default function LandingPage() {
         {/* Decorative academic illustration */}
         <div className="pointer-events-none absolute -top-10 -right-10 w-72 h-72 bg-blue-200 rounded-full opacity-30 blur-3xl"></div>
         <div className="pointer-events-none absolute -bottom-10 -left-10 w-72 h-72 bg-purple-200 rounded-full opacity-30 blur-3xl"></div>
+        <div className="relative z-10 w-full flex flex-col items-center">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 1}}
           className="text-4xl md:text-5xl font-bold text-blue-700 mb-6"
         >
           Welcome to Smart Classroom Portal
         </motion.h2>
-        <p className="text-gray-600 max-w-2xl mb-10">
-          A modern digital platform for students, teachers, and admins to connect, learn, and manage academic resources efficiently.
+        <p className="text-gray-600 max-w-2xl mb-10 bg-white">
+          {/* A modern digital platform for students, teachers, and admins to connect, learn, and manage academic resources efficiently. */}
         </p>
 
         {/* Centered Login Box */}
@@ -155,7 +157,10 @@ export default function LandingPage() {
             </form>
           </Card>
         </div>
+        </div>
       </section>
+
+
 
       {/* Features */}
       <section id="features" className="py-16 bg-gray-50">
