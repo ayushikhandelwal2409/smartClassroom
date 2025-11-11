@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import TimeTable from "./components/TimeTable";
-import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Users, AlertTriangle, MapPin, BookOpen, ChevronDown, ChevronUp, X, Mail, GraduationCap } from "lucide-react";
+import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Users, AlertTriangle, MapPin, BookOpen, ChevronDown, ChevronUp, X, Mail, GraduationCap, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {Pie} from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+
 
 const StudentDashboard = () => {
   // user
@@ -15,6 +19,9 @@ const StudentDashboard = () => {
   // Profile sidebar state
   const [showProfileSidebar, setShowProfileSidebar] = useState(false);
 
+  // sidebar visibility state (mobile menu)
+  const [showSidebar, setShowSidebar] = useState(false);
+
  
 // calender state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -26,6 +33,31 @@ const StudentDashboard = () => {
   ];
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// for image carousel
+  const placeholderImages = [
+    "https://source.unsplash.com/800x400/?college,students",
+    "https://source.unsplash.com/800x400/?library,education",
+    "https://source.unsplash.com/800x400/?graduation,ceremony",
+  ];
+
+  // attendance chart (dummy)
+  
+  ChartJS.register(ArcElement, Tooltip, Legend);
+  const pieChartData = {
+    labels: ["Present", "Absent"],
+    datasets: [
+      {
+        data: [75, 25],
+        backgroundColor: ["#34d399", "#f87171"],
+        borderColor: ["#fff", "#fff"],
+          borderWidth: 1,
+          hoverOffset: 10,
+      },
+    ],
+    
+  };
+
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -141,10 +173,23 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar (no center links) */}
-      <header className="bg-blue-600 text-white shadow">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">College Portal</h1>
+      {/* Navbar  */}
+      <header className="bg-blue-600 text-white shadow flex justify-between items-center px-4 sm:px-6 py-3 ">
+        {/* Mobile Nav Toggle */}
+        <div className="flex items-center space-x-2">
+          <button
+            className="p-2 rounded-md hover:bg-blue-700 transition lg:hidden"
+            onClick={() => setShowSidebar(true)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          <GraduationCap className="w-7 h-7" />
+          <h1 className="text-lg sm:text-2xl font-bold">College Portal</h1>
+        </div>
+
+          
+
 
           {/* Profile + Logout */}
           <div className="flex items-center space-x-4">
@@ -171,115 +216,120 @@ const StudentDashboard = () => {
                   <User className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <p className="font-medium">{user.Name}</p>
                 <p className="text-sm text-gray-200">Student</p>
               </div>
             </div>
-            <button onClick={handleLogout} className="flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
+            <button onClick={handleLogout} className="hidden sm:flex flex items-center space-x-2 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
             </button>
           </div>
-        </div>
       </header>
+        
+      {/* Flash Message (Lost and Found) */}
+      {activeSection !== 'lost-found' && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-2 flex items-center space-x-2">
+          <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
+          <marquee behavior="scroll" direction="left">
+            Lost: Black backpack with blue straps. Found near Block C. Collect from Lost and Found office.
+          </marquee>
+        </div>
+      )}
 
-      {/* Main content */}
-      <main className="w-full px-6 py-8 flex gap-6">
-        {/* Left Sidebar Menu - 20% width */}
-        <div className="w-1/5 flex-shrink-0">
-          <div className="bg-white p-4 rounded-xl shadow">
+      
+      {/* Sidebar Drawer */}
+      {showSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-black opacity-40"
+            onClick={() => setShowSidebar(false)}
+          ></div>
+
+        {/* Left Sidebar Menu */}
+
+        <div className="relative w-64 bg-white p-4 shadow-lg z-50">
+          {/* <div className=""> */}
+          <button
+              className="absolute top-4 right-4"
+              onClick={() => setShowSidebar(false)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+
             <h3 className="text-lg font-bold mb-4">Menu</h3>
             <nav className="space-y-2">
-              <button
-                onClick={() => setActiveSection('home')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'home'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <Home className="w-4 h-4 mr-2" />
-                Home
-              </button>
-              <button
-                onClick={() => setActiveSection('timetable')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'timetable'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <Clock className="w-4 h-4 mr-2" />
-                Time Table
-              </button>
-              <button
-                onClick={() => setActiveSection('attendance')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'attendance'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Attendance
-              </button>
-              <button
-                onClick={() => setActiveSection('lost-found')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'lost-found'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                Lost & Found
-              </button>
-              <button
-                onClick={() => setActiveSection('room-occupancy')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'room-occupancy'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <MapPin className="w-4 h-4 mr-2" />
-                Room Occupancy
-              </button>
-              <button
-                onClick={() => setActiveSection('rent-room')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'rent-room'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <MapPin className="w-4 h-4 mr-2" />
-                Rent a Room
-              </button>
-              <button
-                onClick={() => setActiveSection('faq')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'faq'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <BookOpen className="w-4 h-4 mr-2" />
-                FAQ
-              </button>
+              {/* nav button */}
+              {["home", "timetable", "attendance", "lost-found", "room-occupancy", "rent-room", "faq"].map((section) => (
+          <button
+            key={section}
+            onClick={() => {
+              setActiveSection(section)
+              setShowSidebar(false);
+            }}
+            className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+              activeSection === section
+                ? "bg-blue-100 text-blue-700"
+                : "hover:bg-gray-100"
+            }`}
+          >
+              {/* map icons*/}
+              {section === "home" && <Home className="w-4 h-4 mr-2" />}
+              {section === "timetable" && <Clock className="w-4 h-4 mr-2" />}
+              {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
+              {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
+              {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
+              {section === "rent-room" && <MapPin className="w-4 h-4 mr-2" />}
+              {section === "faq" && <BookOpen className="w-4 h-4 mr-2" />}
+              
+              {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
+            </button>
+          ))}
             </nav>
           </div>
         </div>
+      )}
+
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.7fr_3fr_1fr] gap-4 h-[calc(100vh-4rem)]">
+        {/* Left Sidebar (desktop only) */}
+        <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
+          <h3 className="text-lg font-bold mb-4">Menu</h3>
+          <nav className="space-y-2">
+            {["home", "timetable", "attendance", "lost-found", "room-occupancy", "rent-room", "faq"].map((section) => (
+          <button
+            key={section}
+            onClick={() => setActiveSection(section)}
+            className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+              activeSection === section
+                ? "bg-blue-100 text-blue-700"
+                : "hover:bg-gray-100"
+            }`}
+          >
+              {/* map icons*/}
+              {section === "home" && <Home className="w-4 h-4 mr-2" />}
+              {section === "timetable" && <Clock className="w-4 h-4 mr-2" />}
+              {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
+              {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
+              {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
+              {section === "rent-room" && <MapPin className="w-4 h-4 mr-2" />}
+              {section === "faq" && <BookOpen className="w-4 h-4 mr-2" />}
+              
+              {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
+            </button>
+          ))}
+          </nav>
+        </div>
 
         {/* Center Content - 60% width */}
-        <div className="w-3/5 space-y-6">
+        <div className="space-y-6">
           {activeSection === 'home' ? (
             <>
               <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold">✨ Hey {user.Name}! 👋</h2>
-                  <p className="text-sm mt-2">
+                  <h2 className="text-lg md:text-2xl font-semibold">✨ Hey {user.Name}! 👋</h2>
+                  <p className="text-xs md:text-sm mt-2">
                     Education is the most powerful weapon which you can use to
                     change the world.
                   </p>
@@ -292,8 +342,8 @@ const StudentDashboard = () => {
               </div>
 
               <div>
-                <h3 className="text-lg font-bold mb-4">Upcoming Events & Notices</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="flex justify-center text-lg font-bold mb-4">Upcoming Events & Notices</div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
                   <div className="bg-white p-5 rounded-xl shadow">
                     <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
                       <CalendarDays className="w-5 h-5" />
@@ -337,7 +387,9 @@ const StudentDashboard = () => {
               </div>
             </>
           ) : activeSection === 'timetable' ? (
-            <TimeTable section={user.section} />
+            <div className="overflow-y-auto max-h-[calc(100vh-10rem)]">
+              <TimeTable section={user.section} />
+            </div>
           ) : activeSection === 'faq' ? (
             <div className="bg-white p-6 rounded-2xl shadow">
               <div className="flex items-center justify-between mb-4">
@@ -433,8 +485,9 @@ const StudentDashboard = () => {
           )}
         </div>
 
-        {/* Right Sidebar (Calendar) - 20% width */}
-        <aside className="w-1/5 flex-shrink-0">
+        {/* Right Sidebar (Calendar +  Attendance Chart) */}
+        <aside className="space-y-4">
+          {/* Calendar Section */}
           <div className="bg-white p-4 rounded-xl shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-bold">
@@ -481,6 +534,24 @@ const StudentDashboard = () => {
             ))}
           </div>
           </div>
+
+          {/* Attendance Pie Chart */}
+          <div className="bg-white p-4 rounded-xl shadow flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-3 text-gray-700">Attendance Overview</h3>
+            <div className="w-40 h-40">
+              <Pie data={pieChartData} 
+                options={{
+                        plugins: { legend: { display: false } },
+                        animation: { animateRotate: true, animateScale: true },
+                        cutout: "45%",
+                      }}
+              />
+            </div>
+            <div className="mt-2 text-sm text-gray-600 text-center">
+              {/* <p><span className="text-green-500 font-semibold">Present:</span> 75%</p>
+              <p><span className="text-red-500 font-semibold">Absent:</span> 25%</p> */}
+            </div>
+          </div>
         </aside>
       </main>
 
@@ -494,7 +565,7 @@ const StudentDashboard = () => {
           ></div>
           
           {/* Sidebar */}
-          <div className="fixed right-0 top-0 h-[calc(100vh-4rem)] w-96 bg-gradient-to-b from-blue-50 via-white to-gray-50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+          <div className="fixed right-0 top-0 h-screen w-full sm:w-[450px] bg-gradient-to-b from-blue-50 via-white to-gray-50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">

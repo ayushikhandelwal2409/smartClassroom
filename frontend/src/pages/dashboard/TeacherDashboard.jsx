@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home, X, Mail, Briefcase } from "lucide-react";
+import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home, X, Mail, Briefcase, Menu, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TeacherTimeTable from "./components/TeacherTimeTable";
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
 
 const TeacherDashboard = () => {
   // user
@@ -13,6 +18,9 @@ const TeacherDashboard = () => {
 
   // Profile sidebar state
   const [showProfileSidebar, setShowProfileSidebar] = useState(false);
+
+  // sidebar visibility state (mobile menu)
+    const [showSidebar, setShowSidebar] = useState(false);
 
   // Calendar state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -73,6 +81,81 @@ const TeacherDashboard = () => {
       { id: 'S008', name: 'Lisa Garcia', attendance: 81 },
     ]
   };
+
+  // Static average attendance data per section (dummy)
+  const sectionAttendanceData = {
+    '3A': { present: 85, absent: 15 },
+    '3B': { present: 92, absent: 8 },
+    '4A': { present: 78, absent: 22 },
+    '4B': { present: 88, absent: 12 },
+    '5A': { present: 80, absent: 20 },
+  };
+
+    const getBarChartData = () => {
+      const sections = Object.keys(sectionAttendanceData);
+      const presentData = sections.map((s) => sectionAttendanceData[s].present);
+      const absentData = sections.map((s) => sectionAttendanceData[s].absent);
+
+      return {
+        labels: sections,
+        datasets: [
+          {
+            label: "Present (%)",
+            data: presentData,
+            backgroundColor: "rgba(34,197,94,0.85)", // Green
+            borderRadius: 0,
+            borderSkipped: false,
+          },
+          {
+            label: "Absent (%)",
+            data: absentData,
+            backgroundColor: "rgba(239,68,68,0.85)", // Red
+            borderRadius: 0,
+            borderSkipped: false,
+          },
+        ],
+      };
+    };
+
+    const barOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: "Attendance (%)",
+            color: "#555",
+            font: { size: 12, weight: "bold" },
+          },
+          ticks: { color: "#444" },
+          grid: { color: "#eee" },
+        },
+        x: {
+          ticks: { color: "#444" },
+          grid: { display: false },
+        },
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+          labels: { color: "#333", boxWidth: 14 },
+        },
+        tooltip: {
+          backgroundColor: "rgba(0,0,0,0.8)",
+          titleColor: "#fff",
+          bodyColor: "#ddd",
+        },
+      },
+      animation: {
+        duration: 1000,
+        easing: "easeOutBounce",
+      },
+    };
+
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -324,11 +407,19 @@ const TeacherDashboard = () => {
 
       case 'timetable':
         return (
+          <div className="overflow-y-auto"
+            style={{ 
+              maxHeight: "calc(100vh - 10rem)",
+              scrollbarWidth: "thin",
+            }}
+          >
+        
           <TeacherTimeTable 
             teacherId={user?.teacherId}
             sectionsToTeach={user?.sectionsToTeach}
             subjectTaught={user?.subjectTaught}
-          />
+            />
+            </div>
         );
 
       case 'swap-room':
@@ -418,8 +509,8 @@ const TeacherDashboard = () => {
 
             {/* Upcoming Events */}
             <div>
-              <h3 className="text-lg font-bold mb-4">Upcoming Events & Notices</h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <h3 className="flex justify-center text-lg font-bold mb-4">Upcoming Events & Notices</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {/* Event Card */}
                 <div className="bg-white p-5 rounded-xl shadow">
                   <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
@@ -605,9 +696,19 @@ const TeacherDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
-      <header className="bg-blue-600 text-white shadow">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">College Portal</h1>
+      <header className="bg-blue-600 text-white shadow flex justify-between items-center px-4 sm:px-6 py-3 ">
+        {/* Mobile Nav Toggle */}
+        <div className="flex items-center space-x-2">
+          <button
+            className="p-2 rounded-md hover:bg-blue-700 transition lg:hidden"
+            onClick={() => setShowSidebar(true)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          <GraduationCap className="w-7 h-7" />
+          <h1 className="text-lg sm:text-2xl font-bold">College Portal</h1>
+        </div>
 
           {/* Profile + Logout */}
           <div className="flex items-center space-x-4">
@@ -634,92 +735,119 @@ const TeacherDashboard = () => {
                   <User className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <p className="font-medium">{user.Name}</p>
                 <p className="text-sm text-gray-200">Teacher</p>
               </div>
             </div>
-            <button onClick={handleLogout} className="flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
+            <button onClick={handleLogout} className="hidden sm:flex flex items-center space-x-1 border border-white px-3 py-1 rounded-lg hover:bg-white hover:text-blue-600 transition">
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
             </button>
           </div>
-        </div>
+        {/* </div> */}
       </header>
 
-      {/* Main content */}
-      <main className="w-full px-6 py-8 flex gap-6">
-        {/* Left Sidebar Menu - 20% width */}
-        <div className="w-1/5 flex-shrink-0">
-          <div className="bg-white p-4 rounded-xl shadow">
-            <h3 className="text-lg font-bold mb-4">Menu</h3>
-            <nav className="space-y-2">
-              <button
-                onClick={() => setActiveSection('home')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'home'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <Home className="w-4 h-4 mr-2" />
-                Home
-              </button>
-              <button
-                onClick={() => setActiveSection('attendance')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'attendance'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Attendance
-              </button>
-              <button
-                onClick={() => setActiveSection('timetable')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'timetable'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <Clock className="w-4 h-4 mr-2" />
-                Timetable
-              </button>
-              <button
-                onClick={() => setActiveSection('lost-found')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'lost-found'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                Lost & Found
-              </button>
-              <button
-                onClick={() => setActiveSection('swap-room')}
-                className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
-                  activeSection === 'swap-room'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <MapPin className="w-4 h-4 mr-2" />
-                Swap a Room
-              </button>
-            </nav>
-          </div>
+      {/* Flash Message (Lost and Found) */}
+      {activeSection !== 'lost-found' && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-2 flex items-center space-x-2">
+          <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
+          <marquee behavior="scroll" direction="left">
+            Lost: Black backpack with blue straps. Found near Block C. Collect from Lost and Found office.
+          </marquee>
         </div>
+      )}
+
+      {/* Sidebar Drawer */}
+            {showSidebar && (
+              <div className="fixed inset-0 z-50 flex">
+                <div
+                  className="fixed inset-0 bg-black opacity-40"
+                  onClick={() => setShowSidebar(false)}
+                ></div>
+      
+              {/* Left Sidebar Menu */}
+      
+              <div className="relative w-64 bg-white p-4 shadow-lg z-50">
+                {/* <div className=""> */}
+                <button
+                    className="absolute top-4 right-4"
+                    onClick={() => setShowSidebar(false)}
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+      
+                  <h3 className="text-lg font-bold mb-4">Menu</h3>
+                  <nav className="space-y-2">
+                    {/* nav button */}
+                    {["home", "timetable", "attendance", "lost-found", "swap-room"].map((section) => (
+          <button
+            key={section}
+            onClick={() => setActiveSection(section)}
+            className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+              activeSection === section
+                ? "bg-blue-100 text-blue-700"
+                : "hover:bg-gray-100"
+            }`}
+          >
+              {/* map icons*/}
+              {section === "home" && <Home className="w-4 h-4 mr-2" />}
+              {section === "timetable" && <Clock className="w-4 h-4 mr-2" />}
+              {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
+              {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
+              {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />}
+              
+              
+              {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
+            </button>
+          ))}
+                  </nav>
+                </div>
+              </div>
+            )}
+
+
+      {/* Main content */}
+            <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.6fr_3.5fr_0.6fr] gap-3">
+              {/* Left Sidebar (desktop only) */}
+              <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
+                <h3 className="text-lg font-bold mb-4">Menu</h3>
+                <nav className="space-y-2">
+                  {["home", "timetable", "attendance", "lost-found", "swap-room"].map((section) => (
+                <button
+                  key={section}
+                  onClick={() => setActiveSection(section)}
+                  className={`w-full flex items-center px-3 py-2 rounded-lg transition ${
+                    activeSection === section
+                      ? "bg-blue-100 text-blue-700"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                    {/* map icons*/}
+                    {section === "home" && <Home className="w-4 h-4 mr-2" />}
+                    {section === "timetable" && <Clock className="w-4 h-4 mr-2" />}
+                    {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
+                    {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
+                    {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />}
+                    
+                    
+                    {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
+                  </button>
+                ))}
+                </nav>
+              </div>
+
+
+
 
         {/* Center Content - 60% width */}
-        <div className="w-3/5 space-y-6">
+        <div className="space-y-6 overflow-y-auto max-h-full hide-scrollbar">
           {renderMainContent()}
         </div>
 
-        {/* Right Sidebar (Calendar) - 20% width */}
-        <aside className="w-1/5 flex-shrink-0">
+        {/* Right Sidebar (Calendar + Attendance) */}
+        <aside className="space-y-4">
+          {/* Calender */}
           <div className="bg-white p-4 rounded-xl shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-bold">
@@ -766,6 +894,17 @@ const TeacherDashboard = () => {
             ))}
           </div>
           </div>
+
+          {/* Attendance Bar Graph */}
+          <div className="bg-white p-4 rounded-xl shadow h-[300px] flex flex-col">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">
+              Section Attendance Overview
+            </h3>
+            <div className="flex-1">
+              <Bar data={getBarChartData()} options={barOptions} />
+            </div>
+          </div>
+          
         </aside>
       </main>
 
@@ -774,12 +913,12 @@ const TeacherDashboard = () => {
         <>
           {/* Backdrop - Blur only, no dark overlay */}
           <div 
-            className="fixed inset-0 bg-transparent backdrop-blur-md z-40 transition-opacity"
+            className="fixed inset-0 bg-transparent backdrop-blur-sm z-40 transition-opacity"
             onClick={() => setShowProfileSidebar(false)}
           ></div>
           
           {/* Sidebar */}
-          <div className="fixed right-0 top-0 h-[calc(100vh-4rem)] w-96 bg-gradient-to-b from-blue-50 via-white to-gray-50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
+          <div className="fixed right-0 top-0 h-screen w-full sm:w-[450px] bg-gradient-to-b from-blue-50 via-white to-gray-50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto">
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
