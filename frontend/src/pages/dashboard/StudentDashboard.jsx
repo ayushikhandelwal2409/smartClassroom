@@ -292,7 +292,7 @@ const StudentDashboard = () => {
       )}
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.7fr_3fr_1fr] gap-4 h-[calc(100vh-4rem)]">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.6fr_3fr_1fr] gap-4 h-[calc(100vh-4rem)]">
         {/* Left Sidebar (desktop only) */}
         <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
           <h3 className="text-lg font-bold mb-4">Menu</h3>
@@ -387,7 +387,12 @@ const StudentDashboard = () => {
               </div>
             </>
           ) : activeSection === 'timetable' ? (
-            <div className="overflow-y-auto max-h-[calc(100vh-10rem)]">
+            <div className="overflow-y-auto" 
+              style={{ 
+                    maxHeight: "calc(100vh - 10rem)",
+                    scrollbarWidth: "none",
+                  }}
+            >
               <TimeTable section={user.section} />
             </div>
           ) : activeSection === 'faq' ? (

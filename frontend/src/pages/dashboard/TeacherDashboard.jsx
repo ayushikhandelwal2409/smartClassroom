@@ -140,7 +140,7 @@ const TeacherDashboard = () => {
       },
       plugins: {
         legend: {
-          display: true,
+          display: false,
           position: "top",
           labels: { color: "#333", boxWidth: 14 },
         },
@@ -410,7 +410,7 @@ const TeacherDashboard = () => {
           <div className="overflow-y-auto"
             style={{ 
               maxHeight: "calc(100vh - 10rem)",
-              scrollbarWidth: "thin",
+              scrollbarWidth: "none",
             }}
           >
         
@@ -808,7 +808,7 @@ const TeacherDashboard = () => {
 
 
       {/* Main content */}
-            <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.6fr_3.5fr_0.6fr] gap-3">
+            <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.6fr_3.5fr_1fr] gap-3">
               {/* Left Sidebar (desktop only) */}
               <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
                 <h3 className="text-lg font-bold mb-4">Menu</h3>
@@ -896,11 +896,11 @@ const TeacherDashboard = () => {
           </div>
 
           {/* Attendance Bar Graph */}
-          <div className="bg-white p-4 rounded-xl shadow h-[300px] flex flex-col">
+          <div className="bg-white p-4 rounded-xl shadow h-[250px] flex flex-col">
             <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">
               Section Attendance Overview
             </h3>
-            <div className="flex-1">
+            <div className="flex-1 min-h-[120px]">
               <Bar data={getBarChartData()} options={barOptions} />
             </div>
           </div>
