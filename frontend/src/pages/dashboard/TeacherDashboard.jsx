@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import TeacherTimeTable from "./components/TeacherTimeTable";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+import LostFound from "../LostFound";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -38,6 +39,11 @@ const TeacherDashboard = () => {
   const [sections, setSections] = useState([]); // from /api/sections
   const [todaySubjects, setTodaySubjects] = useState([]); // entries for today mapped to timeSlots
 
+
+  // to store latest lost item
+  const [latestLostItem, setLatestLostItem] = useState(null);
+
+  
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -467,25 +473,7 @@ const TeacherDashboard = () => {
 
       case 'lost-found':
         return (
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h3 className="text-xl font-bold mb-6 flex items-center">
-              <AlertTriangle className="w-6 h-6 mr-2" />
-              Lost & Found
-            </h3>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <h4 className="font-semibold text-yellow-800">Lost Item</h4>
-                <p className="text-sm text-gray-600">Black backpack</p>
-                <p className="text-xs text-gray-500">Found in Room 301</p>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <h4 className="font-semibold text-green-800">Found Item</h4>
-                <p className="text-sm text-gray-600">Blue water bottle</p>
-                <p className="text-xs text-gray-500">Found in Library</p>
-              </div>
-            </div>
-          </div>
+          <LostFound />
         );
 
       default:
@@ -597,6 +585,20 @@ const TeacherDashboard = () => {
     };
 
     fetchUserData();
+
+    // fetch the latest lost item
+    const fetchLatestLostItem = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/lostfound/latest");
+        const data = await res.json();
+        setLatestLostItem(data);
+      } catch (error) {
+        console.error('Error fetching latest lost item:', error);
+      }
+    };
+
+    fetchLatestLostItem();
+
   }, [navigate]);
 
   const fetchBuildingBlocks = async (token) => {
@@ -683,6 +685,7 @@ const TeacherDashboard = () => {
   useEffect(() => {
     // recompute when slots or sections change
     computeTodaySubjects();
+    
   }, [sections, timeSlots]);
 
   if (!user) {
@@ -749,11 +752,11 @@ const TeacherDashboard = () => {
       </header>
 
       {/* Flash Message (Lost and Found) */}
-      {activeSection !== 'lost-found' && (
+      {activeSection !== 'lost-found' && latestLostItem && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-2 flex items-center space-x-2">
           <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
           <marquee behavior="scroll" direction="left">
-            Lost: Black backpack with blue straps. Found near Block C. Collect from Lost and Found office.
+            Lost: {latestLostItem.title} — {latestLostItem.description}. Collect from Lost and Found office.
           </marquee>
         </div>
       )}

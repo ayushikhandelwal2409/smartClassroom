@@ -4,6 +4,7 @@ import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Use
 import { useNavigate } from "react-router-dom";
 import {Pie} from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import LostFound from "../LostFound";
 
 
 
@@ -22,6 +23,8 @@ const StudentDashboard = () => {
   // sidebar visibility state (mobile menu)
   const [showSidebar, setShowSidebar] = useState(false);
 
+  // to store latest lost item
+  const [latestLostItem, setLatestLostItem] = useState(null);
  
 // calender state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -130,6 +133,8 @@ const StudentDashboard = () => {
 };
 
   useEffect(() => {
+
+    // fetch user data
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -159,6 +164,19 @@ const StudentDashboard = () => {
     };
 
     fetchUserData();
+
+    // fetch the latest lost item
+    const fetchLatestLostItem = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/lostfound/latest");
+        const data = await res.json();
+        setLatestLostItem(data);
+      } catch (error) {
+        console.error('Error fetching latest lost item:', error);
+      }
+    };
+
+    fetchLatestLostItem();
   }, [navigate]);
 
   // Add a loading state while user data is being fetched
@@ -229,11 +247,11 @@ const StudentDashboard = () => {
       </header>
         
       {/* Flash Message (Lost and Found) */}
-      {activeSection !== 'lost-found' && (
+      {activeSection !== 'lost-found' && latestLostItem && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-2 flex items-center space-x-2">
           <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
           <marquee behavior="scroll" direction="left">
-            Lost: Black backpack with blue straps. Found near Block C. Collect from Lost and Found office.
+            Lost: {latestLostItem.title} — {latestLostItem.description} 
           </marquee>
         </div>
       )}
@@ -292,7 +310,7 @@ const StudentDashboard = () => {
       )}
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.6fr_3fr_1fr] gap-4 h-[calc(100vh-4rem)]">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 md:grid-cols-[2fr_0.9fr] lg:grid-cols-[0.6fr_3fr_1fr] gap-4 h-[calc(100vh-4rem)]">
         {/* Left Sidebar (desktop only) */}
         <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
           <h3 className="text-lg font-bold mb-4">Menu</h3>
@@ -387,9 +405,8 @@ const StudentDashboard = () => {
               </div>
             </>
           ) : activeSection === 'timetable' ? (
-            <div className="overflow-y-auto" 
+            <div className="overflow-y-auto max-h-[calc(100vh-12rem)] sm:max-h-[calc(100vh-10rem)]" 
               style={{ 
-                    maxHeight: "calc(100vh - 10rem)",
                     scrollbarWidth: "none",
                   }}
             >
@@ -482,6 +499,8 @@ const StudentDashboard = () => {
                 </div>
               </div>
             </div>
+          ): activeSection === 'lost-found' ? ( 
+            <LostFound />
           ) : (
             <div className="bg-white p-6 rounded-xl shadow">
               <h3 className="text-xl font-bold mb-2">{activeSection.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</h3>
@@ -543,7 +562,7 @@ const StudentDashboard = () => {
           {/* Attendance Pie Chart */}
           <div className="bg-white p-4 rounded-xl shadow flex flex-col items-center">
             <h3 className="text-lg font-semibold mb-3 text-gray-700">Attendance Overview</h3>
-            <div className="w-40 h-40">
+            <div className="w-28 h-28 sm:w-40 sm:h-40 md:w-40 md:h-40">
               <Pie data={pieChartData} 
                 options={{
                         plugins: { legend: { display: false } },
