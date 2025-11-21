@@ -12,6 +12,7 @@ const seedBlocks = require('./seedBlock'); // function to seed blocks
 // routes
 const authRoutes = require('./routes/auth');
 const timetableRoutes = require('./routes/timetable');
+const lostFoundRoutes = require('./routes/lostFound')
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -36,6 +37,7 @@ connectDB();
 app.use(cors()); // enable cross-origin resource Sharing (CORS) to allow frontend requests
 
 app.use(express.json()); // parse incoming JSON payloads
+app.use(express.urlencoded({ extended: true }));
 
 // api routes
 
@@ -53,6 +55,9 @@ app.use('/api/timetable', timetableRoutes);
 // --- Serve Static Files ---
 // Make the 'uploads' folder publicly accessible to serve profile images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+app.use('/api/lostfound', lostFoundRoutes)
 
 // --- Server Listener ---
 // Define the port the server will listen on
