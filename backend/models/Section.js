@@ -22,6 +22,10 @@ const sectionSchema = new mongoose.Schema({
   timetable: {
     type: [DaySchema],
     required: true
+  },
+  capacity: {
+    type: Number,
+    default: 50 // default capacity, can be overridden
   }
 });
 

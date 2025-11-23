@@ -10,8 +10,11 @@ const seedCourses = require('./seedSubject'); // function to seed courses
 const seedBlocks = require('./seedBlock'); // function to seed blocks
 
 // routes
+const lostFoundRoutes = require('./routes/lostFound')
 const authRoutes = require('./routes/auth');
 const timetableRoutes = require('./routes/timetable');
+const blocksRoutes = require('./routes/blocks');
+const studentsRoutes = require('./routes/students');
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -36,6 +39,7 @@ connectDB();
 app.use(cors()); // enable cross-origin resource Sharing (CORS) to allow frontend requests
 
 app.use(express.json()); // parse incoming JSON payloads
+app.use(express.urlencoded({ extended: true }));
 
 // api routes
 
@@ -48,11 +52,17 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 // timetable routes
 app.use('/api/timetable', timetableRoutes);
+// blocks routes
+app.use('/api/blocks', blocksRoutes);
+// students routes
+app.use('/api/students', studentsRoutes);
 
 
 // --- Serve Static Files ---
 // Make the 'uploads' folder publicly accessible to serve profile images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use('/api/lostfound', lostFoundRoutes)
 
 // --- Server Listener ---
 // Define the port the server will listen on

@@ -29,51 +29,51 @@ router.get('/me', auth, async (req, res) => {
 });
 
 // POST api/auth/register - Register new student
-router.post('/register', (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) return res.status(400).json({ msg: err });
+// router.post('/register', (req, res) => {
+//   upload(req, res, async (err) => {
+//     if (err) return res.status(400).json({ msg: err });
 
-    if (!req.file) return res.status(400).json({ msg: 'Error: No File Selected!' });
+//     if (!req.file) return res.status(400).json({ msg: 'Error: No File Selected!' });
 
-    const { Name, email, password, studentId, section } = req.body;
+//     const { Name, email, password, studentId, section } = req.body;
 
-    try {
-      let user = await Student.findOne({ email });
-      if (user) return res.status(400).json({ msg: 'User with this email already exists' });
+//     try {
+//       let user = await Student.findOne({ email });
+//       if (user) return res.status(400).json({ msg: 'User with this email already exists' });
 
-      const newUser = new Student({
-        Name,
-        email,
-        password,
-        studentId,
-        section,
-        image: req.file.path
-      });
+//       const newUser = new Student({
+//         Name,
+//         email,
+//         password,
+//         studentId,
+//         section,
+//         image: req.file.path
+//       });
 
-      // Hash password
-      const salt = await bcrypt.genSalt(10);
-      newUser.password = await bcrypt.hash(newUser.password, salt);
+//       // Hash password
+//       const salt = await bcrypt.genSalt(10);
+//       newUser.password = await bcrypt.hash(newUser.password, salt);
 
-      await newUser.save();
+//       await newUser.save();
 
-      // Create JWT token
-      const payload = { user: { id: newUser.id } };
-      jwt.sign(
-        payload,
-        process.env.JWT_SECRET || 'your_default_secret',
-        { expiresIn: 3600 },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
-        }
-      );
+//       // Create JWT token
+//       const payload = { user: { id: newUser.id } };
+//       jwt.sign(
+//         payload,
+//         process.env.JWT_SECRET || 'your_default_secret',
+//         { expiresIn: 3600 },
+//         (err, token) => {
+//           if (err) throw err;
+//           res.json({ token });
+//         }
+//       );
 
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server Error');
-    }
-  });
-});
+//     } catch (err) {
+//       console.error(err.message);
+//       res.status(500).send('Server Error');
+//     }
+//   });
+// });
 
 // POST api/auth/login - Authenticate user (student/teacher) with 10-digit ID and get token
 router.post('/login', async (req, res) => {
