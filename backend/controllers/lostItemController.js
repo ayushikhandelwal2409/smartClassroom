@@ -20,7 +20,7 @@ const addLostItem = async (req, res) =>{
         const form = new FormData();
         form.append('image', fs.createReadStream(req.file.path)) // reads the image
 
-        console.log("FILE:", req.file);
+        // console.log("FILE:", req.file);
 
         // send image to ml
         const imgRes = await axios.post("http://127.0.0.1:5000/embed-image", 
@@ -32,6 +32,37 @@ const addLostItem = async (req, res) =>{
 
         const imgVec = imgRes.data.embedding;
 
+        // check for duplicate using cosine similarity
+        const existing = await LostItem.find(); 
+
+        const similarity = (A, B) => {
+        if (!A || !B) return 0;
+        let dot = 0, a = 0, b = 0;
+        for (let i = 0; i < A.length; i++) {
+            dot += A[i] * B[i];
+            a += A[i] * A[i];
+            b += B[i] * B[i];
+        }
+            return dot / (Math.sqrt(a) * Math.sqrt(b));
+        };
+
+        // check image similarity threshold
+        let isDuplicate = false;
+        for (let i = 0; i < existing.length; i++) {
+        const score = similarity(imgVec, existing[i].image_embedding);
+        console.log("Duplicate check score:", score);
+        
+        if (score > 0.92) {   // threshold for exact same item
+            isDuplicate = true;
+            break;
+            }
+        }
+
+        if (isDuplicate) {
+        return res.status(409).json({
+            message: "Duplicate item detected - this lost item already exists."
+        });
+        }
 
         // store in db
         const item = await LostItem.create({

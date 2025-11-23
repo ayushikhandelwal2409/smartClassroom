@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const LostItemSchema = new mongoose.Schema({
+    // userId: { type: String, required: true },
     title: String,
     description: String,
     image_url: String,

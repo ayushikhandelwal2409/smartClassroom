@@ -23,6 +23,16 @@ const LostFound = () => {
     setForm({ ...form, image: e.target.files[0] });
   };
 
+  const fetchItems = async () => {
+        try {
+          const res = await fetch("http://localhost:5000/api/lostfound/all");
+          const data = await res.json();
+          setResults(data);
+        } catch (err) {
+          console.error(err);
+        }
+    };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -37,61 +47,19 @@ const LostFound = () => {
         body: fd
       });
 
-      const data = await res.json();
-      alert("Lost item added successfully!");
-    } catch (error) {
-      alert("Failed to add lost item!");
-    }
-  };
-
-  const handleSearch = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/lostfound/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: searchQuery })
-      });
-
-      const data = await res.json();
-      setResults(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-      const handleImageSearch = async () => {
-      if (!searchImage) {
-        alert("Please upload an image!");
+     const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Failed to add lost item!");  // show server error message
         return;
       }
-
-      const fd = new FormData();
-      fd.append("image", searchImage);
-
-      try {
-        const res = await fetch("http://localhost:5000/api/lostfound/search-image", {
-          method: "POST",
-          body: fd
-        });
-
-        const data = await res.json();
-        setResults(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
+      alert("Lost item added successfully!");
+      fetchItems();  // refresh all items
+    } catch (error) {
+      alert("Something went wrong");
+    }
+  };
 
     useEffect(() => {
-      const fetchItems = async () => {
-        try {
-          const res = await fetch("http://localhost:5000/api/lostfound/all");
-          const data = await res.json();
-          setResults(data);
-        } catch (err) {
-          console.error(err);
-        }
-      };
       fetchItems();
     }, []);
 
