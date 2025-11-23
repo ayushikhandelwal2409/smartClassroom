@@ -11,6 +11,9 @@ from sentence_transformers import SentenceTransformer
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 
+import numpy as np
+from numpy.linalg import norm
+
 # CLIPModel = converts images into embeddings
 # PIL = used to read images
 
@@ -29,8 +32,9 @@ clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 @app.post("/embed-text")
 def embed_text():
     text = request.json["text"]
-    embedding = text_model.encode(text).tolist()
-    return jsonify({"embedding": embedding})
+    emb = text_model.encode(text)
+    emb =emb/ norm(emb)
+    return jsonify({"embedding": emb.tolist()})
 
 
 # convert image = embedding
@@ -42,8 +46,12 @@ def embed_image():
 
     inputs = clip_processor(images=image, return_tensors="pt")
     outputs = clip_model.get_image_features(**inputs)
-    emb = outputs[0].detach().numpy().tolist()  # convert tensor → Python list
-    return jsonify({"embedding": emb})
+
+
+    img_vec = outputs[0].detach().numpy() 
+    img_vec = img_vec / norm(img_vec)
+
+    return jsonify({"embedding": img_vec.tolist()})
 
 
 app.run(host="0.0.0.0", port=5000)

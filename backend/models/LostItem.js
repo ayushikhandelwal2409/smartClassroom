@@ -4,7 +4,9 @@ const LostItemSchema = new mongoose.Schema({
     title: String,
     description: String,
     image_url: String,
-    embedding: [Number],  // ML vector
+    text_embedding: { type: [Number]},
+    image_embedding: { type: [Number]},
+
     createdAt: { type: Date, default: Date.now }
 })
 

@@ -20,6 +20,8 @@ const addLostItem = async (req, res) =>{
         const form = new FormData();
         form.append('image', fs.createReadStream(req.file.path)) // reads the image
 
+        console.log("FILE:", req.file);
+
         // send image to ml
         const imgRes = await axios.post("http://127.0.0.1:5000/embed-image", 
             form, 
@@ -30,14 +32,14 @@ const addLostItem = async (req, res) =>{
 
         const imgVec = imgRes.data.embedding;
 
-        const finalEmbedding = textVec.map((v, i)=>(v + imgVec[i]) / 2)
 
         // store in db
         const item = await LostItem.create({
             title,
             description,
             image_url: req.file.path,
-            embedding: finalEmbedding
+            text_embedding: textVec,
+            image_embedding: imgVec
         });
 
         res.json({message: "Lost item added", item})
@@ -50,20 +52,23 @@ const addLostItem = async (req, res) =>{
 // search by text
 const searchLostItem = async (req, res) => {
     try {
-        const query = req.body.query;
+        const query = req.body.query || "";
 
         // query → embedding
+        let qVec = null;
+        if(query.trim() !== ""){
             const embedRes = await axios.post("http://127.0.0.1:5000/embed-text", {
             text: query
-        })
-
-        const qVec = embedRes.data.embedding;
+            })
+        qVec = embedRes.data.embedding;
+        }
 
         // fetch all items
         const items = await LostItem.find();
 
         // compare similarity
         const similarity = (A, B) => {
+            if(!A || !B) return 0;
             let dot = 0, a = 0, b = 0;
             for (let i = 0; i < A.length; i++) {
                 dot += A[i] * B[i];
@@ -77,7 +82,7 @@ const searchLostItem = async (req, res) => {
         const results = items
             .map((item) => ({
                 item,
-                score: similarity(qVec, item.embedding)
+                score: qVec ? similarity(qVec, item.text_embedding): 0
             }))
             .sort((a, b) => b.score - a.score);
 
@@ -99,6 +104,7 @@ const imageSearchLostItem = async (req, res) => {
     form.append("image", fs.createReadStream(req.file.path));
 
     // Send image → ML Server
+    
     const imgRes = await axios.post(
       "http://127.0.0.1:5000/embed-image",
       form,
@@ -112,6 +118,7 @@ const imageSearchLostItem = async (req, res) => {
 
     // Cosine similarity
     const similarity = (A, B) => {
+        if(!A || !B) return 0;
       let dot = 0, a = 0, b = 0;
       for (let i = 0; i < A.length; i++) {
         dot += A[i] * B[i];
@@ -124,7 +131,7 @@ const imageSearchLostItem = async (req, res) => {
     const results = items
       .map(item => ({
         item,
-        score: similarity(qVec, item.embedding)
+        score: similarity(qVec, item.image_embedding) // image search
       }))
       .sort((a, b) => b.score - a.score);
 
@@ -149,5 +156,15 @@ const latestLostItem =  async (req, res) => {
     }
 }
 
+// get all items
+    const getAllLostItems = async (req, res) => {
+    try {
+        const items = await LostItem.find().sort({ createdAt: -1 });
+        res.json(items.map(item => ({ item, score: 0 })));
+    } 
+    catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    };
 
-module.exports = {addLostItem, searchLostItem, latestLostItem, imageSearchLostItem};
+module.exports = {addLostItem, searchLostItem, latestLostItem, imageSearchLostItem, getAllLostItems};

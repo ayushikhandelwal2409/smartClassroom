@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { AlertTriangle, Camera, Search } from "lucide-react";
+import { useEffect } from "react";
 
 const LostFound = () => {
   const [form, setForm] = useState({
@@ -12,6 +13,7 @@ const LostFound = () => {
   const [searchImage, setSearchImage] = useState(null);
 
   const [results, setResults] = useState([]);
+
 
   const handleInputChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -80,6 +82,21 @@ const LostFound = () => {
     };
 
 
+    useEffect(() => {
+      const fetchItems = async () => {
+        try {
+          const res = await fetch("http://localhost:5000/api/lostfound/all");
+          const data = await res.json();
+          setResults(data);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchItems();
+    }, []);
+
+
+
   return (
     <div className="bg-white p-4 sm:p-6 rounded-xl shadow space-y-6 h-full max-h-[calc(100vh-7rem)] overflow-y-auto"
       style={{ 
@@ -134,43 +151,68 @@ const LostFound = () => {
       <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
         <h3 className="text-lg font-semibold mb-3">Search Lost Items</h3>
 
-        <div className="flex gap-2">
+        <div className="space-y-3">
           <input
             type="text"
-            placeholder="Search by name (e.g., Earbuds)"
+            placeholder="Search by name or description"
             value={searchQuery}
-            className="flex-1 p-3 border rounded-lg"
+            className="w-full p-3 border rounded-lg"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
 
+          <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer bg-white">
+            <Camera className="w-5 h-5 text-purple-600" />
+            <span>Upload Image</span>
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) => setSearchImage(e.target.files[0])}
+            />
+          </label>
+
           <button
-            onClick={handleSearch}
-            className="bg-blue-600 text-white px-4 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            onClick={async () => {
+              // If user entered text
+              if (searchQuery.trim() !== "") {
+                try {
+                  const res = await fetch("http://localhost:5000/api/lostfound/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: searchQuery })
+                  });
+                  const data = await res.json();
+                  setResults(data);
+                } catch (err) {
+                  console.error(err);
+                }
+              }
+              // Otherwise use image search
+              else if (searchImage) {
+                try {
+                  const fd = new FormData();
+                  fd.append("image", searchImage);
+
+                  const res = await fetch("http://localhost:5000/api/lostfound/search-image", {
+                    method: "POST",
+                    body: fd
+                  });
+
+                  const data = await res.json();
+                  setResults(data);
+                } catch (err) {
+                  console.error(err);
+                }
+              }
+              else {
+                alert("Please enter a text or upload an image");
+              }
+            }}
+            className="bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
           >
-            <Search className="w-4 h-4" /> Search
+            <Search className="w-5 h-5" /> Search
           </button>
         </div>
       </div>
-
-      <div className="mt-3">
-        <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer bg-white">
-          <Camera className="w-5 h-5 text-purple-600" />
-          <span>Search by Image</span>
-          <input
-            type="file"
-            className="hidden"
-            onChange={(e) => setSearchImage(e.target.files[0])}
-          />
-        </label>
-
-        <button
-          onClick={handleImageSearch}
-          className="bg-purple-600 text-white mt-2 px-4 py-2 rounded-lg hover:bg-purple-700"
-        >
-          Search Image
-        </button>
-      </div>
-
 
       {/* Results */}
       <div className="space-y-3">
@@ -204,9 +246,9 @@ const LostFound = () => {
                     <p className="text-sm text-gray-600 mt-1">{r?.item?.description}</p>
                   </div>
 
-                  <p className="text-xs text-blue-600 mt-2">
+                  {/* <p className="text-xs text-blue-600 mt-2">
                     🔍 Match: {Number(r.score || 0).toFixed(3)}
-                  </p>
+                  </p> */}
                 </div>
               ))}
             </div>
