@@ -13,12 +13,8 @@ const seedBlocks = require('./seedBlock'); // function to seed blocks
 const lostFoundRoutes = require('./routes/lostFound')
 const authRoutes = require('./routes/auth');
 const timetableRoutes = require('./routes/timetable');
-<<<<<<< HEAD
-const lostFoundRoutes = require('./routes/lostFound')
-=======
 const blocksRoutes = require('./routes/blocks');
 const studentsRoutes = require('./routes/students');
->>>>>>> edf47d5714528588892a6413b5418890c4a98f60
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -66,10 +62,6 @@ app.use('/api/students', studentsRoutes);
 // Make the 'uploads' folder publicly accessible to serve profile images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-<<<<<<< HEAD
-
-=======
->>>>>>> edf47d5714528588892a6413b5418890c4a98f60
 app.use('/api/lostfound', lostFoundRoutes)
 
 // --- Server Listener ---
