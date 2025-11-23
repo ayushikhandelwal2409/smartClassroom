@@ -9,6 +9,8 @@ const LostFound = () => {
   });
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchImage, setSearchImage] = useState(null);
+
   const [results, setResults] = useState([]);
 
   const handleInputChange = (e) => {
@@ -54,6 +56,29 @@ const LostFound = () => {
       console.error(err);
     }
   };
+
+      const handleImageSearch = async () => {
+      if (!searchImage) {
+        alert("Please upload an image!");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("image", searchImage);
+
+      try {
+        const res = await fetch("http://localhost:5000/api/lostfound/search-image", {
+          method: "POST",
+          body: fd
+        });
+
+        const data = await res.json();
+        setResults(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-xl shadow space-y-6 h-full max-h-[calc(100vh-7rem)] overflow-y-auto"
@@ -126,6 +151,26 @@ const LostFound = () => {
           </button>
         </div>
       </div>
+
+      <div className="mt-3">
+        <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer bg-white">
+          <Camera className="w-5 h-5 text-purple-600" />
+          <span>Search by Image</span>
+          <input
+            type="file"
+            className="hidden"
+            onChange={(e) => setSearchImage(e.target.files[0])}
+          />
+        </label>
+
+        <button
+          onClick={handleImageSearch}
+          className="bg-purple-600 text-white mt-2 px-4 py-2 rounded-lg hover:bg-purple-700"
+        >
+          Search Image
+        </button>
+      </div>
+
 
       {/* Results */}
       <div className="space-y-3">

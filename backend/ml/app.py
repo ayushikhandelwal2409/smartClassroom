@@ -48,5 +48,3 @@ def embed_image():
 
 app.run(host="0.0.0.0", port=5000)
 
-
-

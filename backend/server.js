@@ -10,9 +10,15 @@ const seedCourses = require('./seedSubject'); // function to seed courses
 const seedBlocks = require('./seedBlock'); // function to seed blocks
 
 // routes
+const lostFoundRoutes = require('./routes/lostFound')
 const authRoutes = require('./routes/auth');
 const timetableRoutes = require('./routes/timetable');
+<<<<<<< HEAD
 const lostFoundRoutes = require('./routes/lostFound')
+=======
+const blocksRoutes = require('./routes/blocks');
+const studentsRoutes = require('./routes/students');
+>>>>>>> edf47d5714528588892a6413b5418890c4a98f60
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -50,13 +56,20 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 // timetable routes
 app.use('/api/timetable', timetableRoutes);
+// blocks routes
+app.use('/api/blocks', blocksRoutes);
+// students routes
+app.use('/api/students', studentsRoutes);
 
 
 // --- Serve Static Files ---
 // Make the 'uploads' folder publicly accessible to serve profile images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> edf47d5714528588892a6413b5418890c4a98f60
 app.use('/api/lostfound', lostFoundRoutes)
 
 // --- Server Listener ---

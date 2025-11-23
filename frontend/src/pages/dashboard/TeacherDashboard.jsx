@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home, X, Mail, Briefcase, Menu, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TeacherTimeTable from "./components/TeacherTimeTable";
+import RoomOccupancy from "./components/RoomOccupancy";
+import AttendanceManagement from "./components/AttendanceManagement";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import LostFound from "../LostFound";
@@ -33,15 +35,15 @@ const TeacherDashboard = () => {
   const [attendanceData, setAttendanceData] = useState({});
   const [students, setStudents] = useState([]);
 
+  // to store latest lost item
+  const [latestLostItem, setLatestLostItem] = useState(null);
+
   // Timetable state
   const [timeSlots, setTimeSlots] = useState([]); // from building blocks (6 per day)
   const [teacherSchedule, setTeacherSchedule] = useState([]); // entries from /api/schedules/teacher/me
   const [sections, setSections] = useState([]); // from /api/sections
   const [todaySubjects, setTodaySubjects] = useState([]); // entries for today mapped to timeSlots
-
-
-  // to store latest lost item
-  const [latestLostItem, setLatestLostItem] = useState(null);
+  const [teacherTimetable, setTeacherTimetable] = useState([]); // processed teacher timetable
 
   
   const months = [
@@ -259,155 +261,18 @@ const TeacherDashboard = () => {
     switch (activeSection) {
       case 'attendance':
         return (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h3 className="text-xl font-bold mb-4">Attendance Management</h3>
-              
-              {/* Show Attendance */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold mb-4 flex items-center">
-                  <Users className="w-5 h-5 mr-2" />
-                  Show Attendance
-                </h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-                  {classes.map((className) => (
-                    <button
-                      key={className}
-                      onClick={() => setSelectedClass(className)}
-                      className={`p-3 rounded-lg border-2 transition-colors ${
-                        selectedClass === className
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-blue-300'
-                      }`}
-                    >
-                      {className}
-                    </button>
-                  ))}
-                </div>
-                
-                {selectedClass && sampleStudents[selectedClass] && (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {sampleStudents[selectedClass].map((student) => (
-                      <div
-                        key={student.id}
-                        className={`p-4 rounded-lg border-2 ${
-                          student.attendance >= 70
-                            ? 'border-green-200 bg-green-50'
-                            : 'border-red-200 bg-red-50'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <h5 className="font-semibold">{student.name}</h5>
-                          <span className={`px-2 py-1 rounded text-sm font-medium ${
-                            student.attendance >= 70
-                              ? 'bg-green-200 text-green-800'
-                              : 'bg-red-200 text-red-800'
-                          }`}>
-                            {student.attendance}%
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600">ID: {student.id}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Take Attendance */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold mb-4 flex items-center">
-                  <Camera className="w-5 h-5 mr-2" />
-                  Take Attendance
-                </h4>
-                
-                {/* Photo Upload Section */}
-                <div className="bg-gray-50 p-6 rounded-lg mb-6">
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <button
-                      onClick={handleCameraCapture}
-                      className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                    >
-                      <Camera className="w-4 h-4 mr-2" />
-                      Take Photo
-                    </button>
-                    <div className="flex-1">
-                      <label className="flex items-center justify-center w-full h-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition cursor-pointer">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload from Gallery
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handlePhotoUpload}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  {uploadedPhoto && (
-                    <p className="text-sm text-green-600 mt-2">
-                      ✓ Photo uploaded: {uploadedPhoto.name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Class Selection for Taking Attendance */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Select Class:</label>
-                  <select
-                    value={selectedClass || ''}
-                    onChange={(e) => setSelectedClass(e.target.value)}
-                    className="w-full md:w-48 p-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="">Choose a class</option>
-                    {classes.map((className) => (
-                      <option key={className} value={className}>{className}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Student List */}
-                {selectedClass && (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {(students.length > 0 ? students : sampleStudents[selectedClass] || []).map((student) => (
-                      <div
-                        key={student.id}
-                        className={`p-4 rounded-lg border-2 transition-colors ${
-                          uploadedPhoto
-                            ? student.marked
-                              ? 'border-green-200 bg-green-50'
-                              : 'border-red-200 bg-red-50'
-                            : 'border-gray-200 bg-white'
-                        }`}
-                      >
-                        <h5 className="font-semibold">{student.name}</h5>
-                        <p className="text-sm text-gray-600">ID: {student.id}</p>
-                        {uploadedPhoto && (
-                          <span className={`text-xs px-2 py-1 rounded mt-2 inline-block ${
-                            student.marked
-                              ? 'bg-green-200 text-green-800'
-                              : 'bg-red-200 text-red-800'
-                          }`}>
-                            {student.marked ? 'Present' : 'Absent'}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Manual Attendance */}
-              <div>
-                <h4 className="text-lg font-semibold mb-4 flex items-center">
-                  <AlertTriangle className="w-5 h-5 mr-2" />
-                  Manual Attendance
-                </h4>
-                <div className="bg-gray-100 p-8 rounded-lg text-center">
-                  <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Manual attendance feature will be implemented later.</p>
-                </div>
-              </div>
-            </div>
+          <div className="overflow-y-auto"
+            style={{ 
+              maxHeight: "calc(100vh - 10rem)",
+              scrollbarWidth: "none",
+            }}
+          >
+            <AttendanceManagement
+              user={user}
+              teacherTimetable={teacherTimetable}
+              sectionsToTeach={user?.sectionsToTeach || []}
+              subjectTaught={user?.subjectTaught || []}
+            />
           </div>
         );
 
@@ -471,7 +336,19 @@ const TeacherDashboard = () => {
           </div>
         );
 
-      case 'lost-found':
+
+      case 'room-occupancy':
+        return (
+          <div className="overflow-y-auto"
+            style={{ 
+              maxHeight: "calc(100vh - 10rem)",
+              scrollbarWidth: "none",
+            }}
+          >
+            <RoomOccupancy />
+          </div>
+        );
+        case 'lost-found':
         return (
           <LostFound />
         );
@@ -570,9 +447,12 @@ const TeacherDashboard = () => {
           // after user loads, fetch timetable metadata and schedule
           await Promise.all([
             fetchBuildingBlocks(token),
-            fetchTeacherSchedule(token),
-            fetchSections(token)
+            fetchTeacherSchedule(token)
           ]);
+          // Fetch sections after user is set (needs user.sectionsToTeach)
+          if (data?.sectionsToTeach) {
+            await fetchSections(token);
+          }
           computeTodaySubjects();
         } else {
           localStorage.removeItem('token');
@@ -585,7 +465,6 @@ const TeacherDashboard = () => {
     };
 
     fetchUserData();
-
     // fetch the latest lost item
     const fetchLatestLostItem = async () => {
       try {
@@ -654,16 +533,90 @@ const TeacherDashboard = () => {
 
   const fetchSections = async (token) => {
     try {
-      const res = await fetch('http://localhost:5000/api/sections', {
-        headers: { 'x-auth-token': token }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSections(data || []);
+      // Fetch sections data similar to TeacherTimeTable
+      if (user?.sectionsToTeach && user.sectionsToTeach.length > 0) {
+        const sectionPromises = user.sectionsToTeach.map(sectionName => 
+          fetch(`http://localhost:5000/api/timetable/${sectionName}`, {
+            headers: { 'x-auth-token': token }
+          })
+        );
+        
+        const responses = await Promise.all(sectionPromises);
+        const sectionData = await Promise.all(
+          responses.map(res => {
+            if (!res.ok) {
+              throw new Error(`Failed to load timetable for section`);
+            }
+            return res.json();
+          })
+        );
+        
+        setSections(sectionData || []);
+        
+        // Process teacher timetable
+        if (sectionData && sectionData.length > 0 && user?.subjectTaught) {
+          processTeacherTimetable(sectionData, user.sectionsToTeach, user.subjectTaught);
+        }
       }
     } catch (e) {
       console.error('Failed to load sections', e);
     }
+  };
+
+  // Process teacher timetable when sections and user data are available
+  useEffect(() => {
+    if (sections && sections.length > 0 && user?.sectionsToTeach && user?.subjectTaught) {
+      processTeacherTimetable(sections, user.sectionsToTeach, user.subjectTaught);
+    }
+  }, [sections, user]);
+
+  const processTeacherTimetable = (sectionData, sectionsToTeach, subjectTaught) => {
+    const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    const teacherSchedule = [];
+    
+    // Create a map of all time slots across all days
+    const allTimeSlots = new Set();
+    sectionData.forEach(section => {
+      section.timetable?.forEach(day => {
+        day.slots?.forEach(slot => {
+          allTimeSlots.add(slot.time);
+        });
+      });
+    });
+
+    // For each day, create a combined schedule
+    DAYS.forEach(dayName => {
+      const daySchedule = { day: dayName, slots: [] };
+      
+      // For each time slot, check if teacher has a class
+      allTimeSlots.forEach(timeSlot => {
+        let teacherSlot = null;
+        
+        // Check each section the teacher teaches
+        sectionData.forEach((section, sectionIndex) => {
+          const dayData = section.timetable?.find(d => d.day === dayName);
+          if (dayData) {
+            const slot = dayData.slots?.find(s => s.time === timeSlot);
+            if (slot && slot.subjectCode && subjectTaught.includes(slot.subjectCode)) {
+              // Teacher has a class at this time
+              teacherSlot = {
+                time: timeSlot,
+                subjectCode: slot.subjectCode,
+                roomNumber: slot.roomNumber,
+                academicBlock: slot.academicBlock,
+                sectionName: sectionsToTeach[sectionIndex]
+              };
+            }
+          }
+        });
+        
+        daySchedule.slots.push(teacherSlot || { time: timeSlot, subjectCode: '', roomNumber: '', academicBlock: '', sectionName: '' });
+      });
+      
+      teacherSchedule.push(daySchedule);
+    });
+
+    setTeacherTimetable(teacherSchedule);
   };
 
   const computeTodaySubjects = () => {
@@ -783,7 +736,7 @@ const TeacherDashboard = () => {
                   <h3 className="text-lg font-bold mb-4">Menu</h3>
                   <nav className="space-y-2">
                     {/* nav button */}
-                    {["home", "timetable", "attendance", "lost-found", "swap-room"].map((section) => (
+                    {["home", "timetable", "attendance", "lost-found", "room-occupancy", "swap-room"].map((section) => (
           <button
             key={section}
             onClick={() => setActiveSection(section)}
@@ -798,6 +751,7 @@ const TeacherDashboard = () => {
               {section === "timetable" && <Clock className="w-4 h-4 mr-2" />}
               {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
               {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
+              {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
               {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />}
               
               
@@ -816,7 +770,7 @@ const TeacherDashboard = () => {
               <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
                 <h3 className="text-lg font-bold mb-4">Menu</h3>
                 <nav className="space-y-2">
-                  {["home", "timetable", "attendance", "lost-found", "swap-room"].map((section) => (
+                  {["home", "timetable", "attendance", "lost-found", "room-occupancy", "swap-room"].map((section) => (
                 <button
                   key={section}
                   onClick={() => setActiveSection(section)}
@@ -831,6 +785,7 @@ const TeacherDashboard = () => {
                     {section === "timetable" && <Clock className="w-4 h-4 mr-2" />}
                     {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
                     {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
+                    {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
                     {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />}
                     
                     
