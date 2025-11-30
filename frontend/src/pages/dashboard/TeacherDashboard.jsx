@@ -293,48 +293,49 @@ const TeacherDashboard = () => {
             </div>
         );
 
-      case 'swap-room':
-        return (
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h3 className="text-xl font-bold mb-6 flex items-center">
-              <MapPin className="w-6 h-6 mr-2" />
-              Swap a Room
-            </h3>
+        // no use
+      // case 'swap-room':
+      //   return (
+      //     <div className="bg-white p-6 rounded-xl shadow">
+      //       <h3 className="text-xl font-bold mb-6 flex items-center">
+      //         <MapPin className="w-6 h-6 mr-2" />
+      //         Swap a Room
+      //       </h3>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-lg font-semibold mb-4">Current Room</h4>
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <p className="font-medium">Room 301</p>
-                  <p className="text-sm text-gray-600">Capacity: 40 students</p>
-                  <p className="text-sm text-gray-600">Equipment: Projector, Whiteboard</p>
-                </div>
-              </div>
+      //       <div className="grid md:grid-cols-2 gap-6">
+      //         <div>
+      //           <h4 className="text-lg font-semibold mb-4">Current Room</h4>
+      //           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+      //             <p className="font-medium">Room 301</p>
+      //             <p className="text-sm text-gray-600">Capacity: 40 students</p>
+      //             <p className="text-sm text-gray-600">Equipment: Projector, Whiteboard</p>
+      //           </div>
+      //         </div>
               
-              <div>
-                <h4 className="text-lg font-semibold mb-4">Available Rooms</h4>
-                <div className="space-y-3">
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition">
-                    <p className="font-medium">Room 205</p>
-                    <p className="text-sm text-gray-600">Capacity: 35 students</p>
-                    <p className="text-sm text-gray-600">Equipment: Smart Board</p>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition">
-                    <p className="font-medium">Room 412</p>
-                    <p className="text-sm text-gray-600">Capacity: 45 students</p>
-                    <p className="text-sm text-gray-600">Equipment: Projector, Sound System</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+      //         <div>
+      //           <h4 className="text-lg font-semibold mb-4">Available Rooms</h4>
+      //           <div className="space-y-3">
+      //             <div className="bg-green-50 p-4 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition">
+      //               <p className="font-medium">Room 205</p>
+      //               <p className="text-sm text-gray-600">Capacity: 35 students</p>
+      //               <p className="text-sm text-gray-600">Equipment: Smart Board</p>
+      //             </div>
+      //             <div className="bg-green-50 p-4 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition">
+      //               <p className="font-medium">Room 412</p>
+      //               <p className="text-sm text-gray-600">Capacity: 45 students</p>
+      //               <p className="text-sm text-gray-600">Equipment: Projector, Sound System</p>
+      //             </div>
+      //           </div>
+      //         </div>
+      //       </div>
             
-            <div className="mt-6">
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                Request Room Swap
-              </button>
-            </div>
-          </div>
-        );
+      //       <div className="mt-6">
+      //         <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+      //           Request Room Swap
+      //         </button>
+      //       </div>
+      //     </div>
+      //   );
 
 
       case 'room-occupancy':
@@ -650,7 +651,7 @@ const TeacherDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       {/* Navbar */}
       <header className="bg-blue-600 text-white shadow flex justify-between items-center px-4 sm:px-6 py-3 ">
         {/* Mobile Nav Toggle */}
@@ -736,7 +737,7 @@ const TeacherDashboard = () => {
                   <h3 className="text-lg font-bold mb-4">Menu</h3>
                   <nav className="space-y-2">
                     {/* nav button */}
-                    {["home", "timetable", "attendance", "lost-found", "room-occupancy", "swap-room"].map((section) => (
+                    {["home", "timetable", "attendance", "lost-found", "room-occupancy"].map((section) => (
           <button
             key={section}
             onClick={() => setActiveSection(section)}
@@ -752,7 +753,7 @@ const TeacherDashboard = () => {
               {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
               {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
               {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
-              {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />}
+              {/* {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />} */}
               
               
               {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
@@ -765,12 +766,12 @@ const TeacherDashboard = () => {
 
 
       {/* Main content */}
-            <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 lg:grid-cols-[0.6fr_3.5fr_1fr] gap-3">
+            <main className="min-h-0 flex-1 w-full p-4 lg:p-6 grid grid-cols-1 md:grid-cols-[2fr_240px] lg:grid-cols-[200px_1fr_250px] gap-2 overflow-y-auto lg:overflow-hidden">
               {/* Left Sidebar (desktop only) */}
               <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
                 <h3 className="text-lg font-bold mb-4">Menu</h3>
                 <nav className="space-y-2">
-                  {["home", "timetable", "attendance", "lost-found", "room-occupancy", "swap-room"].map((section) => (
+                  {["home", "timetable", "attendance", "lost-found", "room-occupancy"].map((section) => (
                 <button
                   key={section}
                   onClick={() => setActiveSection(section)}
@@ -786,7 +787,7 @@ const TeacherDashboard = () => {
                     {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
                     {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
                     {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
-                    {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />}
+                    {/* {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />} */}
                     
                     
                     {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
@@ -799,14 +800,14 @@ const TeacherDashboard = () => {
 
 
         {/* Center Content - 60% width */}
-        <div className="space-y-6 overflow-y-auto max-h-full hide-scrollbar">
+        <div className="space-y-6">
           {renderMainContent()}
         </div>
 
         {/* Right Sidebar (Calendar + Attendance) */}
-        <aside className="space-y-4">
+        <aside className="space-y-4 gap-0">
           {/* Calender */}
-          <div className="bg-white p-4 rounded-xl shadow">
+          <div className="bg-white p-1 rounded-xl shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-bold">
               {months[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -854,7 +855,7 @@ const TeacherDashboard = () => {
           </div>
 
           {/* Attendance Bar Graph */}
-          <div className="bg-white p-4 rounded-xl shadow h-[250px] flex flex-col">
+          <div className="bg-white p-7 rounded-xl shadow h-[250px] flex flex-col">
             <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">
               Section Attendance Overview
             </h3>

@@ -188,7 +188,7 @@ const StudentDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       {/* Navbar  */}
       <header className="bg-blue-600 text-white shadow flex justify-between items-center px-4 sm:px-6 py-3 ">
         {/* Mobile Nav Toggle */}
@@ -308,9 +308,9 @@ const StudentDashboard = () => {
       )}
 
       {/* Main content */}
-     <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 grid grid-cols-1 md:grid-cols-[2fr_0.9fr] lg:grid-cols-[0.6fr_3fr_1fr] gap-4 h-[calc(100vh-4rem)]">
+     <main className="min-h-0 flex-1 w-full p-4 lg:p-6 grid grid-cols-1 md:grid-cols-[2fr_240px] lg:grid-cols-[200px_1fr_250px] gap-4 overflow-y-auto lg:overflow-hidden">
         {/* Left Sidebar (desktop only) */}
-        <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
+        <div className="hidden lg:flex bg-white p-4 rounded-xl shadow flex-col h-full overflow-hidden">
           <h3 className="text-lg font-bold mb-4">Menu</h3>
           <nav className="space-y-2">
             {["home", "timetable", "attendance", "lost-found", "room-occupancy", "rent-room", "faq"].map((section) => (
@@ -519,7 +519,7 @@ const StudentDashboard = () => {
         {/* Right Sidebar (Calendar +  Attendance Chart) */}
         <aside className="space-y-4">
           {/* Calendar Section */}
-          <div className="bg-white p-4 rounded-xl shadow">
+          <div className="bg-white p-1 rounded-xl shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-bold">
               {months[currentDate.getMonth()]} {currentDate.getFullYear()}
