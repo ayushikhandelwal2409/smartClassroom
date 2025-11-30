@@ -13,6 +13,7 @@ const LostFound = () => {
   const [searchImage, setSearchImage] = useState(null);
 
   const [results, setResults] = useState([]);
+  const [mode, setMode] = useState("report");
 
 
   const handleInputChange = (e) => {
@@ -78,9 +79,22 @@ const LostFound = () => {
         <h2 className="text-2xl font-bold">Lost & Found</h2>
       </div>
 
+      {/* Dropdown */}
+      <div className="mb-4">
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+          className="p-2 border rounded-lg"
+        >
+          <option value="report">Report Lost Item</option>
+          <option value="search">Search Lost Item</option>
+        </select>
+      </div>
+
       {/* Report Lost Item */}
-      <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
-        <h3 className="text-lg font-semibold mb-3">Report a Lost Item</h3>
+      {mode === "report" && (
+      <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+        {/* <h3 className="text-lg font-semibold mb-3">Report a Lost Item</h3> */}
 
         <form className="space-y-3" onSubmit={handleFormSubmit}>
           <input
@@ -102,7 +116,7 @@ const LostFound = () => {
 
           <label className="flex items-center space-x-2 p-3 border bg-white rounded-lg cursor-pointer">
             <Camera className="w-5 h-5 text-blue-600" />
-            <span>Upload Image</span>
+            <span>{form.image ? form.image.name : "Upload Image"}</span>
             <input type="file" className="hidden" onChange={handleImageUpload} />
           </label>
 
@@ -114,10 +128,12 @@ const LostFound = () => {
           </button>
         </form>
       </div>
+      )}
 
       {/* Search Section */}
+      {mode === "search" && (
       <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-        <h3 className="text-lg font-semibold mb-3">Search Lost Items</h3>
+        {/* <h3 className="text-lg font-semibold mb-3">Search Lost Items</h3> */}
 
         <div className="space-y-3">
           <input
@@ -130,7 +146,7 @@ const LostFound = () => {
 
           <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer bg-white">
             <Camera className="w-5 h-5 text-purple-600" />
-            <span>Upload Image</span>
+            <span>{searchImage ? searchImage.name : "Upload Image"}</span>
             <input
               type="file"
               className="hidden"
@@ -181,10 +197,11 @@ const LostFound = () => {
           </button>
         </div>
       </div>
+      )}
 
       {/* Results */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold mb-3">Results</h3>
+        <h3 className="text-lg font-semibold mb-3">Reported Items</h3>
 
         {results.length === 0 ? (
           <p className="text-gray-500">No results yet.</p>
