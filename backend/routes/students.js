@@ -26,3 +26,4 @@ router.get('/section/:sectionName', auth, async (req, res) => {
 module.exports = router;
 
 
+

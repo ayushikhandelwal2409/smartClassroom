@@ -3,7 +3,7 @@ import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, 
 import { useNavigate } from "react-router-dom";
 import TeacherTimeTable from "./components/TeacherTimeTable";
 import RoomOccupancy from "./components/RoomOccupancy";
-import AttendanceManagement from "./components/AttendanceManagement";
+import TeacherAttendancePage from "./components/attendance/TeacherAttendancePage";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import LostFound from "../LostFound";
@@ -267,11 +267,9 @@ const TeacherDashboard = () => {
               scrollbarWidth: "none",
             }}
           >
-            <AttendanceManagement
+            <TeacherAttendancePage
               user={user}
               teacherTimetable={teacherTimetable}
-              sectionsToTeach={user?.sectionsToTeach || []}
-              subjectTaught={user?.subjectTaught || []}
             />
           </div>
         );
@@ -452,7 +450,7 @@ const TeacherDashboard = () => {
           ]);
           // Fetch sections after user is set (needs user.sectionsToTeach)
           if (data?.sectionsToTeach) {
-            await fetchSections(token);
+            await fetchSections(token, data);
           }
           computeTodaySubjects();
         } else {
@@ -532,11 +530,15 @@ const TeacherDashboard = () => {
     }
   };
 
-  const fetchSections = async (token) => {
+  const fetchSections = async (token, userData = null) => {
     try {
-      // Fetch sections data similar to TeacherTimeTable
-      if (user?.sectionsToTeach && user.sectionsToTeach.length > 0) {
-        const sectionPromises = user.sectionsToTeach.map(sectionName => 
+      // Use userData parameter if provided, otherwise fall back to user state
+      const userInfo = userData || user;
+      console.log('fetchSections - userInfo:', userInfo);
+      
+      if (userInfo?.sectionsToTeach && userInfo.sectionsToTeach.length > 0) {
+        console.log('Fetching timetables for sections:', userInfo.sectionsToTeach);
+        const sectionPromises = userInfo.sectionsToTeach.map(sectionName => 
           fetch(`http://localhost:5000/api/timetable/${sectionName}`, {
             headers: { 'x-auth-token': token }
           })
@@ -552,12 +554,16 @@ const TeacherDashboard = () => {
           })
         );
         
+        console.log('Fetched section data:', sectionData);
         setSections(sectionData || []);
         
         // Process teacher timetable
-        if (sectionData && sectionData.length > 0 && user?.subjectTaught) {
-          processTeacherTimetable(sectionData, user.sectionsToTeach, user.subjectTaught);
+        if (sectionData && sectionData.length > 0 && userInfo?.subjectTaught) {
+          console.log('Processing teacher timetable with subjects:', userInfo.subjectTaught);
+          processTeacherTimetable(sectionData, userInfo.sectionsToTeach, userInfo.subjectTaught);
         }
+      } else {
+        console.log('No sections to teach or sectionsToTeach is empty');
       }
     } catch (e) {
       console.error('Failed to load sections', e);
@@ -572,6 +578,7 @@ const TeacherDashboard = () => {
   }, [sections, user]);
 
   const processTeacherTimetable = (sectionData, sectionsToTeach, subjectTaught) => {
+    console.log('processTeacherTimetable called with:', { sectionData, sectionsToTeach, subjectTaught });
     const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const teacherSchedule = [];
     
@@ -584,6 +591,8 @@ const TeacherDashboard = () => {
         });
       });
     });
+
+    console.log('All time slots:', Array.from(allTimeSlots));
 
     // For each day, create a combined schedule
     DAYS.forEach(dayName => {
@@ -617,6 +626,7 @@ const TeacherDashboard = () => {
       teacherSchedule.push(daySchedule);
     });
 
+    console.log('Processed teacher timetable:', teacherSchedule);
     setTeacherTimetable(teacherSchedule);
   };
 

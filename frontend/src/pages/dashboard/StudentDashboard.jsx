@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import TimeTable from "./components/TimeTable";
 import RoomOccupancy from "./components/RoomOccupancy";
+import StudentAttendancePage from "./components/attendance/StudentAttendancePage";
 import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Home, Clock, Users, AlertTriangle, MapPin, BookOpen, ChevronDown, ChevronUp, X, Mail, GraduationCap, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {Pie} from "react-chartjs-2";
@@ -409,6 +410,15 @@ const StudentDashboard = () => {
                   }}
             >
               <TimeTable section={user.section} />
+            </div>
+          ) : activeSection === 'attendance' ? (
+            <div className="overflow-y-auto"
+              style={{ 
+                maxHeight: "calc(100vh - 10rem)",
+                scrollbarWidth: "none",
+              }}
+            >
+              <StudentAttendancePage user={user} />
             </div>
           ) : activeSection === 'faq' ? (
             <div className="bg-white p-6 rounded-2xl shadow">

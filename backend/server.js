@@ -15,6 +15,8 @@ const authRoutes = require('./routes/auth');
 const timetableRoutes = require('./routes/timetable');
 const blocksRoutes = require('./routes/blocks');
 const studentsRoutes = require('./routes/students');
+const attendanceRoutes = require('./routes/attendance');
+const faceRoutes = require('./routes/face');
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -28,7 +30,7 @@ const app = express();
 
 // connect toMongoDB
 connectDB();
-// seedStudents(); // Seed the database with initial student data
+//seedStudents(); // Seed the database with initial student data
 // seed();
 // seedTeachers();
 // seedCourses();
@@ -56,6 +58,10 @@ app.use('/api/timetable', timetableRoutes);
 app.use('/api/blocks', blocksRoutes);
 // students routes
 app.use('/api/students', studentsRoutes);
+// attendance routes
+app.use('/api/attendance', attendanceRoutes);
+// face recognition routes
+app.use('/api/face', faceRoutes);
 
 
 // --- Serve Static Files ---

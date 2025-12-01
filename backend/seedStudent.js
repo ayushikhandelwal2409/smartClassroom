@@ -4,10 +4,10 @@ const Student = require('./models/Student');
 
 const students = [
   // SECTION A
-  { Name: 'Aarav Sharma', section: 'A', studentId: 2315000100, image: 'https://randomuser.me/api/portraits/men/11.jpg', password: 'password123' },
-  { Name: 'Priya Gupta', section: 'A', studentId: 2315000101, image: 'https://randomuser.me/api/portraits/women/12.jpg', password: 'password123' },
-  { Name: 'Karan Mehta', section: 'A', studentId: 2315000102, image: 'https://randomuser.me/api/portraits/men/13.jpg', password: 'password123' },
-  { Name: 'Isha Singh', section: 'A', studentId: 2315000103, image: 'https://randomuser.me/api/portraits/women/14.jpg', password: 'password123' },
+  { Name: 'Ayushi Khandelwal', section: 'A', studentId: 2315000100, image: 'smartClassroom\\backend\\uploads\\profiles\\ayushi.jpg', password: 'password123' },
+  { Name: 'Arya Pratap Singh', section: 'A', studentId: 2315000101, image: 'smartClassroom\\backend\\uploads\\profiles\\profileImage-1759646981589.jpg', password: 'password123' },
+  { Name: 'Dhruv Agarwal', section: 'A', studentId: 2315000102, image: 'https://randomuser.me/api/portraits/men/13.jpg', password: 'password123' },
+  { Name: 'Amrita Maurya', section: 'A', studentId: 2315000103, image: 'smartClassroom\\backend\\uploads\\profiles\\amrita.jpg', password: 'password123' },
 
   // SECTION B
   { Name: 'Ananya Verma', section: 'B', studentId: 2315000200, image: 'https://randomuser.me/api/portraits/women/21.jpg', password: 'password123' },
