@@ -437,7 +437,7 @@ const StudentDashboard = () => {
                   </button>
                   {openFAQ === 'general' && (
                     <div className="p-4 bg-white text-sm text-gray-700">
-                      Use your Student ID (10 digits) or Teacher ID (6 digits) and your password. If you're new, contact your coordinator to get credentials.
+                      Use your Student ID (10 digits) or Teacher ID (6 digits) and your password. If you are new, contact your coordinator to get credentials.
                     </div>
                   )}
                 </div>
@@ -496,7 +496,7 @@ const StudentDashboard = () => {
                     onClick={() => setOpenFAQ(openFAQ === 'technical' ? null : 'technical')}
                     className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-slate-50 hover:from-gray-100 hover:to-slate-100 transition"
                   >
-                    <span className="text-left font-semibold text-gray-900">The portal isn't loading—what should I do?</span>
+                    <span className="text-left font-semibold text-gray-900">The portal is not loading—what should I do?</span>
                     {openFAQ === 'technical' ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
                   </button>
                   {openFAQ === 'technical' && (

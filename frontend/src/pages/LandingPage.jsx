@@ -43,19 +43,17 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Header */}
-      <header className="w-full bg-blue-700 text-white py-4 shadow-md fixed top-0 left-0 right-0 z-50">
-        <div className="max-w-6xl mx-auto flex justify-between items-center px-6">
-          <div className="flex items-center space-x-2">
-            <GraduationCap className="w-7 h-7" />
-            <h1 className="text-2xl font-bold">Smart Classroom</h1>
-          </div>
-          <nav className="space-x-6 hidden md:flex items-center">
-            <a href="#features" className="hover:underline">Features</a>
-            <a href="#about" className="hover:underline">About</a>
-            <a href="#contact" className="hover:underline">Contact</a>
-            <a href="#login" className="ml-6 inline-block bg-white text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition">Login</a>
-          </nav>
+      <header className="w-full bg-blue-700 text-white shadow-md fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 py-4">
+        <div className="flex items-center space-x-2">
+          <GraduationCap className="w-7 h-7" />
+          <h1 className="text-2xl font-bold">Smart Classroom</h1>
         </div>
+        <nav className="space-x-6 hidden md:flex items-center">
+          <a href="#features" className="hover:underline">Features</a>
+          <a href="#about" className="hover:underline">About</a>
+          <a href="#contact" className="hover:underline">Contact</a>
+          <a href="#login" className="ml-6 inline-block bg-white text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition">Login</a>
+        </nav>
       </header>
 
       {/* Hero Section */}
