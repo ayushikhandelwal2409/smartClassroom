@@ -202,7 +202,7 @@ const StudentDashboard = () => {
           </button>
 
           <GraduationCap className="w-7 h-7" />
-          <h1 className="text-lg sm:text-2xl font-bold">College Portal</h1>
+          <h1 className="text-lg sm:text-2xl font-bold">Smart Classroom</h1>
         </div>
 
           

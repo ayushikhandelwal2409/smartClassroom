@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Card } from "./components/ui/card.jsx";
 import { Button } from "./components/ui/button.jsx";
 import { motion } from "framer-motion";
+import { GraduationCap } from "lucide-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -44,7 +45,10 @@ export default function LandingPage() {
       {/* Header */}
       <header className="w-full bg-blue-700 text-white py-4 shadow-md fixed top-0 left-0 right-0 z-50">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6">
-          <h1 className="text-2xl font-bold">Smart Classroom</h1>
+          <div className="flex items-center space-x-2">
+            <GraduationCap className="w-7 h-7" />
+            <h1 className="text-2xl font-bold">Smart Classroom</h1>
+          </div>
           <nav className="space-x-6 hidden md:flex items-center">
             <a href="#features" className="hover:underline">Features</a>
             <a href="#about" className="hover:underline">About</a>
