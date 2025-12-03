@@ -93,13 +93,14 @@ const StudentAttendancePage = ({ user }) => {
     let totalClasses = 0;
     let totalPercentage = 0;
 
-    subjectAttendance.forEach(subject => {
+   subjectAttendance.forEach(subject => {
       totalPresent += subject.totalPresent;
       totalClasses += subject.totalClasses;
-      totalPercentage += subject.percentage;
+     // totalPercentage += subject.percentage;
     });
 
-    const average = Math.round(totalPercentage / subjectAttendance.length);
+    const k = (totalPresent / totalClasses)*100;
+    const average= k.toFixed(2);
 
     return {
       average,
