@@ -4,6 +4,7 @@ const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
 const LostItem = require('../models/LostItem');
 const Section = require('../models/Section');
+const Event = require('../models/Event');
 
 
 // admin dashboard stats
@@ -188,4 +189,42 @@ const uploadTimetableExcel = async (req, res) => {
 };
 
 
-module.exports = { getDashboardStats, getAllStudents, getAllTeachers, getLostItems, updateLostItemStatus, getSectionTimetable, updateSectionTimetable, uploadTimetableExcel };
+// Admin creates event/notice
+const createEvent = async (req, res) => {
+  try {
+    const { type, title, description, date, location} = req.body;
+
+    if (!type || !title || !description || !date || !location) {
+      return res.status(400).json({ msg: 'All fields are required' });
+    }
+
+    const event = await Event.create({
+      type,
+      title,
+      description,
+      date,
+      location,
+      createdBy: req.user.id
+    });
+
+    res.status(201).json(event);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// home page - get all events and notices (public)
+const getAllEvents = async (req, res) => {
+  try {
+    const events = await Event.find()
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+module.exports = { getDashboardStats, getAllStudents, getAllTeachers, getLostItems, updateLostItemStatus, getSectionTimetable, updateSectionTimetable, uploadTimetableExcel, createEvent, getAllEvents };

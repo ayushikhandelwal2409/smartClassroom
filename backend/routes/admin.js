@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
-
-// const {getDashboardStats, getAllStudents, toggleStudent, toggleTeacher, getAllTeachers, getLostItems, updateLostItemStatus, getSectionTimetable, updateSectionTimetable, } = require('../controllers/adminController');
-const {getDashboardStats, getAllStudents, getAllTeachers, getLostItems, updateLostItemStatus, getSectionTimetable, updateSectionTimetable, uploadTimetableExcel, } = require('../controllers/adminController');
 const timetableUpload = require('../middleware/timeTableUpload');
+
+const {getDashboardStats, getAllStudents, getAllTeachers, getLostItems, updateLostItemStatus, getSectionTimetable, updateSectionTimetable, uploadTimetableExcel, createEvent, getAllEvents, } = require('../controllers/adminController');
 
 
 // dashboard
@@ -31,5 +30,9 @@ router.patch('/timetable/form/:section', auth, isAdmin, updateSectionTimetable);
 // upload timetable via excel
 router.post('/timetable/excel',auth,isAdmin,timetableUpload,uploadTimetableExcel);
 
+// events and announcements
+router.post('/events',auth,isAdmin,createEvent);
+
+router.get('/events', getAllEvents); // public: view events
 
 module.exports = router;
