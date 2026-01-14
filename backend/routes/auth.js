@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Student = require('../models/Student'); // adjust path if needed
+const Student = require('../models/Student'); 
 const Teacher = require('../models/Teacher');
+const Admin = require('../models/Admin');
 const upload = require('../middleware/upload'); 
 const auth = require('../middleware/auth'); 
 
@@ -75,6 +76,7 @@ router.get('/me', auth, async (req, res) => {
 //   });
 // });
 
+
 // POST api/auth/login - Authenticate user (student/teacher) with 10-digit ID and get token
 router.post('/login', async (req, res) => {
   const { userId, password, role } = req.body;
@@ -87,6 +89,8 @@ router.post('/login', async (req, res) => {
   const idString = String(userId);
   const isStudent = role === 'Student';
   const isTeacher = role === 'Teacher';
+  const isAdmin = role === 'Admin';
+
   if (!/^\d+$/.test(idString)) {
     return res.status(400).json({ msg: 'User ID must be numeric' });
   }
@@ -103,6 +107,8 @@ router.post('/login', async (req, res) => {
       user = await Student.findOne({ studentId: Number(idString) });
     } else if (isTeacher) {
       user = await Teacher.findOne({ teacherId: Number(idString) });
+    } else if (isAdmin) { // admin login
+      user = await Admin.findOne({ adminId: Number(idString) });
     } else {
       return res.status(400).json({ msg: 'Invalid role' });
     }

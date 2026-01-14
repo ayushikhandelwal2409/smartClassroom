@@ -19,7 +19,14 @@ const teacherSchema = new mongoose.Schema({
     image:{
         type: String,
         required: true
+    },
+
+    // add admin control to activate/deactivate teacher account
+    active: {
+        type: Boolean,
+        default: true
     }
+
 });
 
 let Teacher=mongoose.model("Teacher",teacherSchema);

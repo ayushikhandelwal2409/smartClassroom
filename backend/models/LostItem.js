@@ -7,7 +7,15 @@ const LostItemSchema = new mongoose.Schema({
     text_embedding: { type: [Number]},
     image_embedding: { type: [Number]},
 
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+
+    // for admin approval workflow
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'resolved', 'rejected'],
+        default: 'pending'
+    }
+
 })
 
 let LostItem = mongoose.model('LostItem', LostItemSchema);

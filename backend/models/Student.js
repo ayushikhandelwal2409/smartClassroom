@@ -13,7 +13,14 @@ const StudentSchema = new mongoose.Schema({
     image:{
         type: String,
         required: true
+    },
+
+    // add admin control to activate/deactivate student account
+    active: {
+        type: Boolean,
+        default: true
     }
+
 });
 
 let Student=mongoose.model("Student",StudentSchema);

@@ -4,10 +4,11 @@ const cors = require('cors');
 const path = require('path'); 
 const connectDB = require('./config/db'); // database connection
 const seedStudents = require('./seedStudent'); // function to seed students
-const seed = require('./seedSelection'); // function to seed selections
+const seed = require('./seedSection'); // function to seed selections
 const seedTeachers = require('./seedTeacher'); // function to seed teachers
 const seedCourses = require('./seedSubject'); // function to seed courses
 const seedBlocks = require('./seedBlock'); // function to seed blocks
+const seedAdmin = require('./seedAdmin'); // function to seed admin
 
 // routes
 const lostFoundRoutes = require('./routes/lostFound')
@@ -17,6 +18,7 @@ const blocksRoutes = require('./routes/blocks');
 const studentsRoutes = require('./routes/students');
 const attendanceRoutes = require('./routes/attendance');
 const faceRoutes = require('./routes/face');
+const adminRoutes = require('./routes/admin');
 
 // environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -35,6 +37,7 @@ connectDB();
 // seedTeachers();
 // seedCourses();
 // seedBlocks();
+// seedAdmin();
 
 // middleware
 
@@ -56,6 +59,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/timetable', timetableRoutes);
 // blocks routes
 app.use('/api/blocks', blocksRoutes);
+
+// admin routes
+app.use('/api/admin', adminRoutes);
+
 // students routes
 app.use('/api/students', studentsRoutes);
 // attendance routes
