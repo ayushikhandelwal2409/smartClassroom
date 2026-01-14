@@ -279,5 +279,30 @@ router.get('/report/monthly', auth, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/attendance/student/:studentId/overall
+ * Get total present/absent count for a student across all subjects
+ */
+router.get('/student/:studentId/overall', auth, async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    // Find all attendance records for the student
+    const records = await Attendance.find({ studentId: Number(studentId) });
+
+    // Calculate total present and absent
+    const totalClasses = records.length;
+    const totalPresent =( records.filter(r => r.status === 'present').length/totalClasses )*100;
+    const totalAbsent =( 100- totalPresent);
+    
+
+    res.json({ totalPresent, totalAbsent });
+  } catch (error) {
+    console.error('Error fetching overall attendance:', error);
+    res.status(500).json({ msg: 'Server Error', error: error.message });
+  }
+});
+
+
 module.exports = router;
 

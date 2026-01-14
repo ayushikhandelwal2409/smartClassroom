@@ -46,19 +46,58 @@ const StudentDashboard = () => {
   // attendance chart (dummy)
   
   ChartJS.register(ArcElement, Tooltip, Legend);
-  const pieChartData = {
-    labels: ["Present", "Absent"],
-    datasets: [
-      {
-        data: [75, 25],
-        backgroundColor: ["#34d399", "#f87171"],
-        borderColor: ["#fff", "#fff"],
-          borderWidth: 1,
-          hoverOffset: 10,
-      },
-    ],
-    
+  const [pieChartData, setPieChartData] = useState({
+  labels: ["Present", "Absent"],
+  datasets: [
+    {
+      data: [0, 0], // initially empty
+      backgroundColor: ["#34d399", "#f87171"],
+      borderColor: ["#fff", "#fff"],
+      borderWidth: 1,
+      hoverOffset: 10,
+    },
+  ],
+});
+
+  useEffect(() => {
+  if (!user || !user.studentId) {
+    console.log("Waiting for user/studentId", user);
+    return;
+  }
+
+  const fetchAttendanceOverview = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `http://localhost:5000/api/attendance/student/${user.studentId}/overall`,
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        }
+      );
+
+      const data = await res.json();
+      setPieChartData({
+        labels: ["Present", "Absent"],
+        datasets: [
+          {
+            data: [data.totalPresent, data.totalAbsent],
+            backgroundColor: ["#34d399", "#f87171"],
+          },
+        ],
+      });
+    } catch (err) {
+      console.error("Attendance fetch error:", err);
+    }
   };
+
+  fetchAttendanceOverview();
+}, [user]);
+
+
+
 
 
   const getDaysInMonth = (date) => {
@@ -278,7 +317,7 @@ const StudentDashboard = () => {
             <h3 className="text-lg font-bold mb-4">Menu</h3>
             <nav className="space-y-2">
               {/* nav button */}
-              {["home", "timetable", "attendance", "lost-found", "room-occupancy", "rent-room", "faq"].map((section) => (
+              {["home", "timetable", "attendance", "lost-found", "room-occupancy", "faq"].map((section) => (
           <button
             key={section}
             onClick={() => {
@@ -297,7 +336,6 @@ const StudentDashboard = () => {
               {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
               {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
               {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
-              {section === "rent-room" && <MapPin className="w-4 h-4 mr-2" />}
               {section === "faq" && <BookOpen className="w-4 h-4 mr-2" />}
               
               {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
@@ -314,7 +352,7 @@ const StudentDashboard = () => {
         <div className="hidden lg:flex bg-white p-4 rounded-xl shadow flex-col h-full overflow-hidden">
           <h3 className="text-lg font-bold mb-4">Menu</h3>
           <nav className="space-y-2">
-            {["home", "timetable", "attendance", "lost-found", "room-occupancy", "rent-room", "faq"].map((section) => (
+            {["home", "timetable", "attendance", "lost-found", "room-occupancy", "faq"].map((section) => (
           <button
             key={section}
             onClick={() => setActiveSection(section)}
@@ -330,7 +368,6 @@ const StudentDashboard = () => {
               {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
               {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
               {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
-              {section === "rent-room" && <MapPin className="w-4 h-4 mr-2" />}
               {section === "faq" && <BookOpen className="w-4 h-4 mr-2" />}
               
               {section.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
@@ -485,7 +522,7 @@ const StudentDashboard = () => {
                   </button>
                   {openFAQ === 'rooms' && (
                     <div className="p-4 bg-white text-sm text-gray-700">
-                      Use <span className="font-medium">Room Occupancy</span> for live availability. For rentals, see <span className="font-medium">Rent a Room</span>.
+                      Use <span className="font-medium">Room Occupancy</span> for live availability.
                     </div>
                   )}
                 </div>
@@ -518,12 +555,7 @@ const StudentDashboard = () => {
             >
               <RoomOccupancy />
             </div>
-          ) : (
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h3 className="text-xl font-bold mb-2">{activeSection.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</h3>
-              <p className="text-gray-600">This section will be available soon.</p>
-            </div>
-          )}
+          ) : null}
         </div>
 
         {/* Right Sidebar (Calendar +  Attendance Chart) */}
@@ -584,7 +616,7 @@ const StudentDashboard = () => {
                 options={{
                         plugins: { legend: { display: false } },
                         animation: { animateRotate: true, animateScale: true },
-                        cutout: "45%",
+                        cutout: "55%",
                       }}
               />
             </div>

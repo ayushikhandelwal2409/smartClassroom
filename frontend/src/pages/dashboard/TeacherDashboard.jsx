@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CalendarDays, LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home, X, Mail, Briefcase, Menu, GraduationCap } from "lucide-react";
+import { CalendarDays,LogOut, User, ChevronLeft, ChevronRight, Camera, Upload, Clock, MapPin, Users, BookOpen, AlertTriangle, Home, X, Mail, Briefcase, Menu, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TeacherTimeTable from "./components/TeacherTimeTable";
 import RoomOccupancy from "./components/RoomOccupancy";
@@ -7,6 +7,8 @@ import TeacherAttendancePage from "./components/attendance/TeacherAttendancePage
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import LostFound from "../LostFound";
+import Faq from "./components/Faq";
+
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -72,97 +74,6 @@ const TeacherDashboard = () => {
     const subj = dayEntry?.slots?.[slotIndex];
     return subj || '—';
   };
-
-  // Sample data for classes and students
-  const classes = ['3A', '3B', '4A', '4B', '5A'];
-  const sampleStudents = {
-    '3A': [
-      { id: 'S001', name: 'John Doe', attendance: 85 },
-      { id: 'S002', name: 'Jane Smith', attendance: 92 },
-      { id: 'S003', name: 'Mike Johnson', attendance: 65 },
-      { id: 'S004', name: 'Sarah Wilson', attendance: 78 },
-    ],
-    '3B': [
-      { id: 'S005', name: 'Alex Brown', attendance: 88 },
-      { id: 'S006', name: 'Emma Davis', attendance: 95 },
-      { id: 'S007', name: 'Chris Lee', attendance: 72 },
-      { id: 'S008', name: 'Lisa Garcia', attendance: 81 },
-    ]
-  };
-
-  // Static average attendance data per section (dummy)
-  const sectionAttendanceData = {
-    '3A': { present: 85, absent: 15 },
-    '3B': { present: 92, absent: 8 },
-    '4A': { present: 78, absent: 22 },
-    '4B': { present: 88, absent: 12 },
-    '5A': { present: 80, absent: 20 },
-  };
-
-    const getBarChartData = () => {
-      const sections = Object.keys(sectionAttendanceData);
-      const presentData = sections.map((s) => sectionAttendanceData[s].present);
-      const absentData = sections.map((s) => sectionAttendanceData[s].absent);
-
-      return {
-        labels: sections,
-        datasets: [
-          {
-            label: "Present (%)",
-            data: presentData,
-            backgroundColor: "rgba(34,197,94,0.85)", // Green
-            borderRadius: 0,
-            borderSkipped: false,
-          },
-          {
-            label: "Absent (%)",
-            data: absentData,
-            backgroundColor: "rgba(239,68,68,0.85)", // Red
-            borderRadius: 0,
-            borderSkipped: false,
-          },
-        ],
-      };
-    };
-
-    const barOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          title: {
-            display: true,
-            text: "Attendance (%)",
-            color: "#555",
-            font: { size: 12, weight: "bold" },
-          },
-          ticks: { color: "#444" },
-          grid: { color: "#eee" },
-        },
-        x: {
-          ticks: { color: "#444" },
-          grid: { display: false },
-        },
-      },
-      plugins: {
-        legend: {
-          display: false,
-          position: "top",
-          labels: { color: "#333", boxWidth: 14 },
-        },
-        tooltip: {
-          backgroundColor: "rgba(0,0,0,0.8)",
-          titleColor: "#fff",
-          bodyColor: "#ddd",
-        },
-      },
-      animation: {
-        duration: 1000,
-        easing: "easeOutBounce",
-      },
-    };
 
 
   const getDaysInMonth = (date) => {
@@ -351,6 +262,8 @@ const TeacherDashboard = () => {
         return (
           <LostFound />
         );
+        case "faq":
+        return <Faq />;
 
       default:
         return (
@@ -674,7 +587,7 @@ const TeacherDashboard = () => {
           </button>
 
           <GraduationCap className="w-7 h-7" />
-          <h1 className="text-lg sm:text-2xl font-bold">College Portal</h1>
+          <h1 className="text-lg sm:text-2xl font-bold">Smart Classroom</h1>
         </div>
 
           {/* Profile + Logout */}
@@ -747,7 +660,7 @@ const TeacherDashboard = () => {
                   <h3 className="text-lg font-bold mb-4">Menu</h3>
                   <nav className="space-y-2">
                     {/* nav button */}
-                    {["home", "timetable", "attendance", "lost-found", "room-occupancy"].map((section) => (
+                    {["home", "timetable", "attendance", "lost-found", "room-occupancy", "faq"].map((section) => (
           <button
             key={section}
             onClick={() => setActiveSection(section)}
@@ -763,6 +676,7 @@ const TeacherDashboard = () => {
               {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
               {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
               {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
+              {section === "faq" && <BookOpen className="w-4 h-4 mr-2" />}
               {/* {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />} */}
               
               
@@ -781,7 +695,7 @@ const TeacherDashboard = () => {
               <div className="hidden lg:block bg-white p-4 rounded-xl shadow">
                 <h3 className="text-lg font-bold mb-4">Menu</h3>
                 <nav className="space-y-2">
-                  {["home", "timetable", "attendance", "lost-found", "room-occupancy"].map((section) => (
+                  {["home", "timetable", "attendance", "lost-found", "room-occupancy","faq"].map((section) => (
                 <button
                   key={section}
                   onClick={() => setActiveSection(section)}
@@ -797,6 +711,7 @@ const TeacherDashboard = () => {
                     {section === "attendance" && <Users className="w-4 h-4 mr-2" />}
                     {section === "lost-found" && <AlertTriangle className="w-4 h-4 mr-2" />}
                     {section === "room-occupancy" && <MapPin className="w-4 h-4 mr-2" />}
+                    {section === "faq" && <BookOpen className="w-4 h-4 mr-2" />}
                     {/* {section === "swap-room" && <MapPin className="w-4 h-4 mr-2" />} */}
                     
                     
@@ -864,15 +779,6 @@ const TeacherDashboard = () => {
           </div>
           </div>
 
-          {/* Attendance Bar Graph */}
-          <div className="bg-white p-7 rounded-xl shadow h-[250px] flex flex-col">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">
-              Section Attendance Overview
-            </h3>
-            <div className="flex-1 min-h-[120px]">
-              <Bar data={getBarChartData()} options={barOptions} />
-            </div>
-          </div>
           
         </aside>
       </main>
