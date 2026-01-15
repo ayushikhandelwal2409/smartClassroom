@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Users, Camera, Upload, CheckCircle, XCircle, Fingerprint, Edit3, Save, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '../../../api/axios';
 
 const AttendanceManagement = ({ user, teacherTimetable, sectionsToTeach, subjectTaught }) => {
   const [currentClass, setCurrentClass] = useState(null);
@@ -150,25 +151,15 @@ const AttendanceManagement = ({ user, teacherTimetable, sectionsToTeach, subject
   const fetchStudents = async (sectionName) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/students/section/${sectionName}`, {
-        headers: {
-          'x-auth-token': token
-        }
+      const response = await api.get(`/students/section/${sectionName}`);
+      const data = response.data;
+      setStudents(data.students || []);
+      // Initialize attendance state
+      const initialAttendance = {};
+      data.students.forEach(student => {
+        initialAttendance[student.studentId] = null; // null = not marked yet
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data.students || []);
-        // Initialize attendance state
-        const initialAttendance = {};
-        data.students.forEach(student => {
-          initialAttendance[student.studentId] = null; // null = not marked yet
-        });
-        setAttendance(initialAttendance);
-      } else {
-        console.error('Failed to fetch students');
-      }
+      setAttendance(initialAttendance);
     } catch (error) {
       console.error('Error fetching students:', error);
     } finally {
@@ -467,7 +458,7 @@ const AttendanceManagement = ({ user, teacherTimetable, sectionsToTeach, subject
                       <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                         {student.image ? (
                           <img
-                            src={`http://localhost:5000/${student.image}`}
+                            src={`${process.env.REACT_APP_API_URL}/${student.image}`}
                             alt={student.Name}
                             className="w-full h-full object-cover"
                           />
@@ -643,7 +634,7 @@ const AttendanceManagement = ({ user, teacherTimetable, sectionsToTeach, subject
                             <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
                               {student.image ? (
                                 <img
-                                  src={`http://localhost:5000/${student.image}`}
+                                  src={`${process.env.REACT_APP_API_URL}/${student.image}`}
                                   alt={student.Name}
                                   className="w-full h-full object-cover"
                                 />

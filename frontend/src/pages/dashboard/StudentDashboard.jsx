@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import {Pie} from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import LostFound from "../LostFound";
+import api from "../../api/axios";
+
 
 const StudentDashboard = () => {
   // user
@@ -64,18 +66,8 @@ const StudentDashboard = () => {
 
   const fetchAttendanceOverview = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(
-        `http://localhost:5000/api/attendance/student/${user.studentId}/overall`,
-        {
-          headers: {
-            "x-auth-token": token,
-          },
-        }
-      );
-
-      const data = await res.json();
+      const res = await api.get(`/attendance/student/${user.studentId}/overall`);
+      const data = res.data;
       setPieChartData({
         labels: ["Present", "Absent"],
         datasets: [
@@ -178,22 +170,11 @@ const StudentDashboard = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/auth/me', {
-          method: 'GET',
-          headers: {
-            'x-auth-token': token,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data); // Save user data in state
-        } else {
-          localStorage.removeItem('token');
-          navigate('/');
-        }
+        const response = await api.get('/auth/me');
+        setUser(response.data); // Save user data in state
       } catch (error) {
         console.error('Error fetching user data:', error);
+        localStorage.removeItem('token');
         navigate('/');
       }
     };
@@ -203,9 +184,8 @@ const StudentDashboard = () => {
   // fetch the latest lost item
     const fetchLatestLostItem = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/lostfound/latest");
-        const data = await res.json();
-        setLatestLostItem(data);
+        const res = await api.get("/lostfound/latest");
+        setLatestLostItem(res.data);
       } catch (error) {
         console.error('Error fetching latest lost item:', error);
       }
@@ -217,9 +197,8 @@ const StudentDashboard = () => {
   useEffect(() => {
   const fetchEvents = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/events");
-      const data = await res.json();
-      setEvents(data);
+      const res = await api.get("/admin/events");
+      setEvents(res.data);
     } catch (err) {
       console.error("Error fetching events:", err);
     }
@@ -267,7 +246,7 @@ const StudentDashboard = () => {
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                 {user.image ? (
                   <img 
-                    src={`http://localhost:5000/${user.image}`} 
+                    src={`${process.env.REACT_APP_API_URL}/${user.image}`} 
                     alt={user.Name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -673,7 +652,7 @@ const StudentDashboard = () => {
                     {user.image ? (
                       <>
                         <img 
-                          src={`http://localhost:5000/${user.image}`} 
+                          src={`${process.env.REACT_APP_API_URL}/${user.image}`} 
                           alt={user.Name}
                           className="w-full h-full object-cover"
                           onError={(e) => {

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import api from "../../../api/axios";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -64,20 +65,13 @@ const TeacherTimeTable = ({ teacherId, sectionsToTeach, subjectTaught }) => {
         
         // Fetch all sections that the teacher teaches
         const sectionPromises = sectionsToTeach.map(sectionName => 
-          fetch(`http://localhost:5000/api/timetable/${sectionName}`, {
+          api.get(`/timetable/${sectionName}`, {
             signal: controller.signal,
           })
         );
         
         const responses = await Promise.all(sectionPromises);
-        const sectionData = await Promise.all(
-          responses.map(res => {
-            if (!res.ok) {
-              throw new Error(`Failed to load timetable for section`);
-            }
-            return res.json();
-          })
-        );
+        const sectionData = responses.map(res => res.data);
 
         // Process the data to create teacher's timetable
         const processedTimetable = processTeacherTimetable(sectionData, sectionsToTeach, subjectTaught);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import api from "../api/axios";
 
 import LostFound from "../LostFound";
 import {
@@ -102,12 +103,8 @@ const AdminDashboard = () => {
             if (!token) return navigate("/");
 
             try {
-                const res = await fetch("http://localhost:5000/api/auth/me", {
-                    headers: { "x-auth-token": token },
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                setUser(data);
+                const res = await api.get("/auth/me");
+                setUser(res.data);
             } catch {
                 localStorage.removeItem("token");
                 navigate("/");
@@ -118,9 +115,8 @@ const AdminDashboard = () => {
         // fetch the latest lost item
         const fetchLatestLostItem = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/lostfound/latest");
-                const data = await res.json();
-                setLatestLostItem(data);
+                const res = await api.get("/lostfound/latest");
+                setLatestLostItem(res.data);
             } catch (error) {
                 console.error('Error fetching latest lost item:', error);
             }
@@ -137,29 +133,11 @@ const AdminDashboard = () => {
   if (!confirmDelete) return;
 
   try {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(
-      `http://localhost:5000/api/admin/events/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "x-auth-token": token,
-        },
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.msg || "Failed to delete");
-      return;
-    }
-
+    await api.delete(`/admin/events/${id}`);
     // 🔥 Remove from UI instantly
     setEvents((prev) => prev.filter((e) => e._id !== id));
   } catch (err) {
-    alert("Server error");
+    alert(err.response?.data?.msg || "Server error");
   }
 };
 
@@ -171,22 +149,7 @@ const AdminDashboard = () => {
 
     const submitNotice = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch("http://localhost:5000/api/admin/events", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-auth-token": token,
-                },
-                body: JSON.stringify(noticeForm),
-            });
-
-            const data = await res.json();
-            if (!res.ok) {
-                alert(data.msg || "Failed to create notice");
-                return;
-            }
-
+            await api.post("/admin/events", noticeForm);
             alert("Notice created successfully ✅");
             setNoticeForm({
                 type: "Notice",
@@ -197,15 +160,14 @@ const AdminDashboard = () => {
             });
             setShowNoticeForm(false);
         } catch (err) {
-            alert("Server error");
+            alert(err.response?.data?.msg || "Server error");
         }
     };
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/admin/events");
-                const data = await res.json();
-                setEvents(data);
+                const res = await api.get("/admin/events");
+                setEvents(res.data);
             } catch (err) {
                 console.error("Error fetching events:", err);
             }

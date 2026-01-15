@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import api from "../../../api/axios";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -60,17 +61,14 @@ const TimeTable = ({ section }) => {
       try {
         setLoading(true);
         setError("");
-        const res = await fetch(`http://localhost:5000/api/timetable/${section}`, {
+        const res = await api.get(`/timetable/${section}`, {
           signal: controller.signal,
         });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.msg || `Failed to load timetable for section ${section}`);
-        }
-        const data = await res.json();
-        setTimetable(data.timetable || []);
+        setTimetable(res.data.timetable || []);
       } catch (e) {
-        if (e.name !== "AbortError") setError(e.message || "Error fetching timetable");
+        if (e.name !== "AbortError") {
+          setError(e.response?.data?.msg || e.message || "Error fetching timetable");
+        }
       } finally {
         setLoading(false);
       }

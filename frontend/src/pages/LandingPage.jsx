@@ -5,6 +5,7 @@ import { Card } from "./components/ui/card.jsx";
 import { Button } from "./components/ui/button.jsx";
 import { motion } from "framer-motion";
 import { GraduationCap } from "lucide-react";
+import api from "../api/axios";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -17,30 +18,25 @@ export default function LandingPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, password, role })
+      const response = await api.post('/auth/login', {
+        userId,
+        password,
+        role
       });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        if (role === 'Student') {
-          navigate('/student/dashboard');
-        } else if (role === 'Teacher') {
-          navigate('/teacher/dashboard');
-        } else if (role === 'Admin') {
-          navigate('/admin/dashboard');
-        }
-        else {
-          navigate('/');
-        }
-      } else {
-        alert(data.msg || 'Invalid credentials');
+      localStorage.setItem('token', response.data.token);
+      if (role === 'Student') {
+        navigate('/student/dashboard');
+      } else if (role === 'Teacher') {
+        navigate('/teacher/dashboard');
+      } else if (role === 'Admin') {
+        navigate('/admin/dashboard');
+      }
+      else {
+        navigate('/');
       }
     } catch (err) {
       console.error(err);
-      alert('Could not connect to the server. Please try again later.');
+      alert(err.response?.data?.msg || 'Could not connect to the server. Please try again later.');
     }
   };
   return (

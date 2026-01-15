@@ -3,35 +3,7 @@
  * Handles all API calls related to attendance
  */
 
-const API_BASE_URL = 'http://localhost:5000/api';
-
-/**
- * Get authentication token from localStorage
- */
-const getToken = () => {
-  return localStorage.getItem('token');
-};
-
-/**
- * Get headers with authentication token
- */
-const getAuthHeaders = () => {
-  const token = getToken();
-  return {
-    'Content-Type': 'application/json',
-    'x-auth-token': token || ''
-  };
-};
-
-/**
- * Get headers for file uploads
- */
-const getAuthHeadersFormData = () => {
-  const token = getToken();
-  return {
-    'x-auth-token': token || ''
-  };
-};
+import api from '../api/axios';
 
 /**
  * Fetch today's timetable classes for a teacher
@@ -40,20 +12,12 @@ const getAuthHeadersFormData = () => {
  */
 export const fetchTodayClasses = async (teacherId) => {
   try {
-    const token = getToken();
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     
     // Fetch teacher schedule
-    const scheduleRes = await fetch(`${API_BASE_URL}/schedules/teacher/me`, {
-      headers: { 'x-auth-token': token }
-    });
-    
-    if (!scheduleRes.ok) {
-      throw new Error('Failed to fetch teacher schedule');
-    }
-    
-    const schedules = await scheduleRes.json();
+    const scheduleRes = await api.get('/schedules/teacher/me');
+    const schedules = scheduleRes.data;
     
     // Filter today's classes
     const todayClasses = schedules.filter(schedule => {
@@ -75,16 +39,8 @@ export const fetchTodayClasses = async (teacherId) => {
  */
 export const fetchSectionStudents = async (sectionName) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/students/section/${sectionName}`, {
-      headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch students');
-    }
-    
-    const data = await response.json();
-    return data.students || [];
+    const response = await api.get(`/students/section/${sectionName}`);
+    return response.data.students || [];
   } catch (error) {
     console.error('Error fetching section students:', error);
     throw error;
@@ -99,18 +55,10 @@ export const fetchSectionStudents = async (sectionName) => {
  */
 export const getStudentSubjectAttendance = async (studentId, subjectCode) => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/attendance/student/${studentId}?subjectCode=${subjectCode}`,
-      {
-        headers: getAuthHeaders()
-      }
+    const response = await api.get(
+      `/attendance/student/${studentId}?subjectCode=${subjectCode}`
     );
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch attendance');
-    }
-    
-    const data = await response.json();
+    const data = response.data;
     
     // Calculate percentage
     const totalClasses = data.totalClasses || 0;
@@ -135,33 +83,14 @@ export const getStudentSubjectAttendance = async (studentId, subjectCode) => {
  */
 export const markAttendance = async (attendanceData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/attendance/mark`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        ...attendanceData,
-        markedBy: 'manual'
-      })
+    const response = await api.post('/attendance/mark', {
+      ...attendanceData,
+      markedBy: 'manual'
     });
-    
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      console.error('Non-JSON response:', text);
-      throw new Error(`Server returned non-JSON response. Status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.msg || 'Failed to mark attendance');
-    }
-    
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Error marking attendance:', error);
-    throw error;
+    throw new Error(error.response?.data?.msg || 'Failed to mark attendance');
   }
 };
 
@@ -172,30 +101,11 @@ export const markAttendance = async (attendanceData) => {
  */
 export const markBulkAttendance = async (attendanceList) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/attendance/mark-bulk`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ attendanceList })
-    });
-    
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      console.error('Non-JSON response:', text);
-      throw new Error(`Server returned non-JSON response. Status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.msg || 'Failed to mark attendance');
-    }
-    
-    return data;
+    const response = await api.post('/attendance/mark-bulk', { attendanceList });
+    return response.data;
   } catch (error) {
     console.error('Error marking bulk attendance:', error);
-    throw error;
+    throw new Error(error.response?.data?.msg || 'Failed to mark attendance');
   }
 };
 
@@ -215,30 +125,16 @@ export const scanFaceRecognition = async (imageFile, section, subjectCode, perio
     formData.append('subjectCode', subjectCode);
     formData.append('period', period.toString());
     
-    const response = await fetch(`${API_BASE_URL}/face/scan`, {
-      method: 'POST',
-      headers: getAuthHeadersFormData(),
-      body: formData
+    const response = await api.post('/face/scan', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     });
     
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      console.error('Non-JSON response from face recognition:', text);
-      throw new Error(`Server returned non-JSON response. Status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.msg || 'Face recognition failed');
-    }
-    
-    return data.results || [];
+    return response.data.results || [];
   } catch (error) {
     console.error('Error in face recognition scan:', error);
-    throw error;
+    throw new Error(error.response?.data?.msg || 'Face recognition failed');
   }
 };
 
@@ -249,35 +145,16 @@ export const scanFaceRecognition = async (imageFile, section, subjectCode, perio
  */
 export const confirmFaceRecognitionAttendance = async (attendanceList) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/attendance/mark-bulk`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        attendanceList: attendanceList.map(item => ({
-          ...item,
-          markedBy: 'face-recognition'
-        }))
-      })
+    const response = await api.post('/attendance/mark-bulk', {
+      attendanceList: attendanceList.map(item => ({
+        ...item,
+        markedBy: 'face-recognition'
+      }))
     });
-    
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      console.error('Non-JSON response:', text);
-      throw new Error(`Server returned non-JSON response. Status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.msg || 'Failed to confirm attendance');
-    }
-    
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Error confirming face recognition attendance:', error);
-    throw error;
+    throw new Error(error.response?.data?.msg || 'Failed to confirm attendance');
   }
 };
 
@@ -288,16 +165,8 @@ export const confirmFaceRecognitionAttendance = async (attendanceList) => {
  */
 export const getStudentAttendance = async (studentId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/attendance/student/${studentId}`, {
-      headers: getAuthHeaders()
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch student attendance');
-    }
-    
-    const data = await response.json();
-    return data.attendance || [];
+    const response = await api.get(`/attendance/student/${studentId}`);
+    return response.data.attendance || [];
   } catch (error) {
     console.error('Error fetching student attendance:', error);
     return [];
@@ -313,18 +182,10 @@ export const getStudentAttendance = async (studentId) => {
  */
 export const getMonthlyAttendanceReport = async (studentId, month, year) => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/attendance/report/monthly?studentId=${studentId}&month=${month}&year=${year}`,
-      {
-        headers: getAuthHeaders()
-      }
+    const response = await api.get(
+      `/attendance/report/monthly?studentId=${studentId}&month=${month}&year=${year}`
     );
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch monthly report');
-    }
-    
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching monthly report:', error);
     return { attendance: [], summary: {} };
@@ -341,19 +202,10 @@ export const getMonthlyAttendanceReport = async (studentId, month, year) => {
  */
 export const checkAttendanceMarked = async (section, subjectCode, date, period) => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/attendance/check?section=${section}&subjectCode=${subjectCode}&date=${date}&period=${period}`,
-      {
-        headers: getAuthHeaders()
-      }
+    const response = await api.get(
+      `/attendance/check?section=${section}&subjectCode=${subjectCode}&date=${date}&period=${period}`
     );
-    
-    if (!response.ok) {
-      return false;
-    }
-    
-    const data = await response.json();
-    return data.marked || false;
+    return response.data.marked || false;
   } catch (error) {
     console.error('Error checking attendance:', error);
     return false;

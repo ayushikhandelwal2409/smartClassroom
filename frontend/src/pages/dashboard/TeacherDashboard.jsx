@@ -8,6 +8,7 @@ import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import LostFound from "../LostFound";
 import Faq from "./components/Faq";
+import api from "../../api/axios";
 
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -114,9 +115,8 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/events");
-        const data = await res.json();
-        setEvents(data);
+        const res = await api.get("/admin/events");
+        setEvents(res.data);
       } catch (err) {
         console.error("Error fetching events:", err);
       }
@@ -354,32 +354,21 @@ const TeacherDashboard = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/auth/me', {
-          method: 'GET',
-          headers: {
-            'x-auth-token': token,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data);
-          // after user loads, fetch timetable metadata and schedule
-          await Promise.all([
-            fetchBuildingBlocks(token),
-            fetchTeacherSchedule(token)
-          ]);
-          // Fetch sections after user is set (needs user.sectionsToTeach)
-          if (data?.sectionsToTeach) {
-            await fetchSections(token, data);
-          }
-          computeTodaySubjects();
-        } else {
-          localStorage.removeItem('token');
-          navigate('/teacher/dashboard');
+        const response = await api.get('/auth/me');
+        setUser(response.data);
+        // after user loads, fetch timetable metadata and schedule
+        await Promise.all([
+          fetchBuildingBlocks(),
+          fetchTeacherSchedule()
+        ]);
+        // Fetch sections after user is set (needs user.sectionsToTeach)
+        if (response.data?.sectionsToTeach) {
+          await fetchSections(response.data);
         }
+        computeTodaySubjects();
       } catch (error) {
         console.error('Error fetching user data:', error);
+        localStorage.removeItem('token');
         navigate('/teacher/dashboard');
       }
     };
@@ -388,9 +377,8 @@ const TeacherDashboard = () => {
     // fetch the latest lost item
     const fetchLatestLostItem = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/lostfound/latest");
-        const data = await res.json();
-        setLatestLostItem(data);
+        const res = await api.get("/lostfound/latest");
+        setLatestLostItem(res.data);
       } catch (error) {
         console.error('Error fetching latest lost item:', error);
       }
@@ -400,28 +388,24 @@ const TeacherDashboard = () => {
 
   }, [navigate]);
 
-  const fetchBuildingBlocks = async (token) => {
+  const fetchBuildingBlocks = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/building-blocks', {
-        headers: { 'x-auth-token': token }
-      });
-      if (res.ok) {
-        const blocks = await res.json();
-        const block = blocks && blocks[0];
-        const slots = block?.timeSlots || [];
-        if (slots.length === 0) {
-          // fallback to default 6 slots so UI is visible even without seeded data
-          setTimeSlots([
-            { index: 1, start: '10:00', end: '11:00' },
-            { index: 2, start: '11:00', end: '12:00' },
-            { index: 3, start: '12:00', end: '13:00' },
-            { index: 4, start: '13:00', end: '14:00' },
-            { index: 5, start: '14:00', end: '15:00' },
-            { index: 6, start: '15:00', end: '16:00' }
-          ]);
-        } else {
-          setTimeSlots(slots);
-        }
+      const res = await api.get('/building-blocks');
+      const blocks = res.data;
+      const block = blocks && blocks[0];
+      const slots = block?.timeSlots || [];
+      if (slots.length === 0) {
+        // fallback to default 6 slots so UI is visible even without seeded data
+        setTimeSlots([
+          { index: 1, start: '10:00', end: '11:00' },
+          { index: 2, start: '11:00', end: '12:00' },
+          { index: 3, start: '12:00', end: '13:00' },
+          { index: 4, start: '13:00', end: '14:00' },
+          { index: 5, start: '14:00', end: '15:00' },
+          { index: 6, start: '15:00', end: '16:00' }
+        ]);
+      } else {
+        setTimeSlots(slots);
       }
     } catch (e) {
       console.error('Failed to load building blocks', e);
@@ -437,21 +421,16 @@ const TeacherDashboard = () => {
     }
   };
 
-  const fetchTeacherSchedule = async (token) => {
+  const fetchTeacherSchedule = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/schedules/teacher/me', {
-        headers: { 'x-auth-token': token }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTeacherSchedule(data || []);
-      }
+      const res = await api.get('/schedules/teacher/me');
+      setTeacherSchedule(res.data || []);
     } catch (e) {
       console.error('Failed to load teacher schedule', e);
     }
   };
 
-  const fetchSections = async (token, userData = null) => {
+  const fetchSections = async (userData = null) => {
     try {
       // Use userData parameter if provided, otherwise fall back to user state
       const userInfo = userData || user;
@@ -460,20 +439,11 @@ const TeacherDashboard = () => {
       if (userInfo?.sectionsToTeach && userInfo.sectionsToTeach.length > 0) {
         console.log('Fetching timetables for sections:', userInfo.sectionsToTeach);
         const sectionPromises = userInfo.sectionsToTeach.map(sectionName => 
-          fetch(`http://localhost:5000/api/timetable/${sectionName}`, {
-            headers: { 'x-auth-token': token }
-          })
+          api.get(`/timetable/${sectionName}`)
         );
         
         const responses = await Promise.all(sectionPromises);
-        const sectionData = await Promise.all(
-          responses.map(res => {
-            if (!res.ok) {
-              throw new Error(`Failed to load timetable for section`);
-            }
-            return res.json();
-          })
-        );
+        const sectionData = responses.map(res => res.data);
         
         console.log('Fetched section data:', sectionData);
         setSections(sectionData || []);
@@ -607,7 +577,7 @@ const TeacherDashboard = () => {
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                 {user.image ? (
                   <img 
-                    src={`http://localhost:5000/${user.image}`} 
+                    src={`${process.env.REACT_APP_API_URL}/${user.image}`} 
                     alt={user.Name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -828,7 +798,7 @@ const TeacherDashboard = () => {
                     {user.image ? (
                       <>
                         <img 
-                          src={`http://localhost:5000/${user.image}`} 
+                          src={`${process.env.REACT_APP_API_URL}/${user.image}`} 
                           alt={user.Name}
                           className="w-full h-full object-cover"
                           onError={(e) => {

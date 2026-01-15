@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Clock, Building2 } from 'lucide-react';
+import api from '../../../api/axios';
 
 const RoomOccupancy = () => {
   const [occupancyData, setOccupancyData] = useState([]);
@@ -10,17 +11,13 @@ const RoomOccupancy = () => {
 
   const fetchOccupancy = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/blocks/occupancy');
-      if (!response.ok) {
-        throw new Error('Failed to fetch occupancy data');
-      }
-      const data = await response.json();
-      setOccupancyData(data.occupancy || []);
+      const response = await api.get('/blocks/occupancy');
+      setOccupancyData(response.data.occupancy || []);
       setLastUpdated(new Date());
       setError(null);
     } catch (err) {
       console.error('Error fetching occupancy:', err);
-      setError(err.message);
+      setError(err.response?.data?.msg || err.message);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../../api/axios";
 
 const LoginCard = ({ role, demoEmail }) => {
   // for new user
@@ -14,36 +15,28 @@ const LoginCard = ({ role, demoEmail }) => {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, password, role}),
+      const response = await api.post('/auth/login', {
+        userId,
+        password,
+        role
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Store the token for future authenticated requests
-        localStorage.setItem('token', data.token);
-        
-        // Navigate to the correct dashboard based on the role
-        if (role === "Student") {
-          navigate("/student/dashboard");
-        } else if (role === "Teacher") {
-          // Assuming you will create a teacher dashboard route
-          navigate("/teacher/dashboard"); 
-        } else if (role === "Admin") {
-          // Assuming you will create an admin dashboard route
-          navigate("/admin/dashboard");
-        }
-      } else {
-        alert(data.msg || 'Login failed! Please check your credentials.');
+      // Store the token for future authenticated requests
+      localStorage.setItem('token', response.data.token);
+      
+      // Navigate to the correct dashboard based on the role
+      if (role === "Student") {
+        navigate("/student/dashboard");
+      } else if (role === "Teacher") {
+        // Assuming you will create a teacher dashboard route
+        navigate("/teacher/dashboard"); 
+      } else if (role === "Admin") {
+        // Assuming you will create an admin dashboard route
+        navigate("/admin/dashboard");
       }
     } catch (error) {
       console.error('Login request failed:', error);
-      alert('Could not connect to the server. Please try again later.');
+      alert(error.response?.data?.msg || 'Could not connect to the server. Please try again later.');
     }
   };
 

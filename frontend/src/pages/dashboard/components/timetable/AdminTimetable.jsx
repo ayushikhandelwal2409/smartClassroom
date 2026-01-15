@@ -2,6 +2,7 @@ import React, { use, useEffect, useMemo, useState } from "react";
 import EditSlotModal from "./EditSlotModal";
 import { useNavigate } from "react-router-dom";
 import UploadTimetable from "./UploadTimetable";
+import api from "../../../../api/axios";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -80,13 +81,10 @@ const AdminTimetable = () => {
     const fetchTimetable = async () => {
         try {
             setLoading(true);
-            const res = await fetch(
-                `http://localhost:5000/api/timetable/${section}`
-            );
-            const data = await res.json();
-            setTimetable(data.timetable || []);
-        } catch {
-            setError("Failed to load timetable");
+            const res = await api.get(`/timetable/${section}`);
+            setTimetable(res.data.timetable || []);
+        } catch (error) {
+            setError(error.response?.data?.msg || "Failed to load timetable");
         } finally {
             setLoading(false);
         }

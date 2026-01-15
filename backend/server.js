@@ -43,7 +43,12 @@ connectDB();
 
 // app.use("/api/events", require("./routes/event"));
 
-app.use(cors()); // enable cross-origin resource Sharing (CORS) to allow frontend requests
+// enable cross-origin resource Sharing (CORS) to allow frontend requests
+// app.use(cors()); 
+app.use(cors({
+  origin: "https://smartclassroom-frontend.onrender.com",
+  credentials: true
+}));
 
 app.use(express.json()); // parse incoming JSON payloads
 app.use(express.urlencoded({ extended: true }));

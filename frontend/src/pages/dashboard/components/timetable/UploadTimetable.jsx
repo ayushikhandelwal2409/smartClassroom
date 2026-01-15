@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import api from "../../../../api/axios";
 
 const UploadTimetable = () => {
     const [file, setFile] = useState(null);
@@ -7,18 +8,16 @@ const UploadTimetable = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        await fetch(
-            "http://localhost:5000/api/admin/timetable/excel",
-            {
-                method: "POST",
+        try {
+            await api.post("/admin/timetable/excel", formData, {
                 headers: {
-                    "x-auth-token": localStorage.getItem("token"),
+                    "Content-Type": "multipart/form-data",
                 },
-                body: formData,
-            }
-        );
-
-        alert("Timetable uploaded successfully");
+            });
+            alert("Timetable uploaded successfully");
+        } catch (error) {
+            alert(error.response?.data?.msg || "Failed to upload timetable");
+        }
     };
 
     return (

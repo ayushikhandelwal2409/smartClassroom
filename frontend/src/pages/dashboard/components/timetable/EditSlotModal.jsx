@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import api from "../../../../api/axios";
 
 const EditSlotModal = ({ slot, onClose, onSaved }) => {
     const [subjectCode, setSubjectCode] = useState(slot.subjectCode || "");
@@ -8,26 +9,19 @@ const EditSlotModal = ({ slot, onClose, onSaved }) => {
     );
 
     const save = async () => {
-        await fetch(
-            `http://localhost:5000/api/admin/timetable/${slot.section}`,
-            {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-auth-token": localStorage.getItem("token"),
-                },
-                body: JSON.stringify({
-                    day: slot.day,
-                    time: slot.time,
-                    subjectCode,
-                    roomNumber,
-                    academicBlock,
-                }),
-            }
-        );
-
-        onSaved();
-        onClose();
+        try {
+            await api.patch(`/admin/timetable/${slot.section}`, {
+                day: slot.day,
+                time: slot.time,
+                subjectCode,
+                roomNumber,
+                academicBlock,
+            });
+            onSaved();
+            onClose();
+        } catch (error) {
+            alert(error.response?.data?.msg || "Failed to save slot");
+        }
     };
 
     return (

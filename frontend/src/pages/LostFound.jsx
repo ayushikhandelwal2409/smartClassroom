@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AlertTriangle, Camera, Search } from "lucide-react";
 import { useEffect } from "react";
+import api from "../api/axios";
 
 const LostFound = () => {
   const [form, setForm] = useState({
@@ -26,9 +27,8 @@ const LostFound = () => {
 
   const fetchItems = async () => {
         try {
-          const res = await fetch("http://localhost:5000/api/lostfound/all");
-          const data = await res.json();
-          setResults(data);
+          const res = await api.get("/lostfound/all");
+          setResults(res.data);
         } catch (err) {
           console.error(err);
         }
@@ -43,20 +43,15 @@ const LostFound = () => {
     fd.append("image", form.image);
 
     try {
-      const res = await fetch("http://localhost:5000/api/lostfound/add", {
-        method: "POST",
-        body: fd
+      const res = await api.post("/lostfound/add", fd, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
-
-     const data = await res.json();
-      if (!res.ok) {
-        alert(data.message || "Failed to add lost item!");  // show server error message
-        return;
-      }
       alert("Lost item added successfully!");
       fetchItems();  // refresh all items
     } catch (error) {
-      alert("Something went wrong");
+      alert(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -159,13 +154,8 @@ const LostFound = () => {
               // If user entered text
               if (searchQuery.trim() !== "") {
                 try {
-                  const res = await fetch("http://localhost:5000/api/lostfound/search", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: searchQuery })
-                  });
-                  const data = await res.json();
-                  setResults(data);
+                  const res = await api.post("/lostfound/search", { query: searchQuery });
+                  setResults(res.data);
                 } catch (err) {
                   console.error(err);
                 }
@@ -176,13 +166,13 @@ const LostFound = () => {
                   const fd = new FormData();
                   fd.append("image", searchImage);
 
-                  const res = await fetch("http://localhost:5000/api/lostfound/search-image", {
-                    method: "POST",
-                    body: fd
+                  const res = await api.post("/lostfound/search-image", fd, {
+                    headers: {
+                      'Content-Type': 'multipart/form-data'
+                    }
                   });
 
-                  const data = await res.json();
-                  setResults(data);
+                  setResults(res.data);
                 } catch (err) {
                   console.error(err);
                 }
@@ -219,7 +209,7 @@ const LostFound = () => {
                 >
                   <div className="w-full rounded-lg overflow-hidden bg-gray-100">
                     <img
-                      src={r?.item?.image_url ? `http://localhost:5000/${r.item.image_url}` : `https://via.placeholder.com/400x300?text=No+Image`}
+                      src={r?.item?.image_url ? `${process.env.REACT_APP_API_URL}/${r.item.image_url}` : `https://via.placeholder.com/400x300?text=No+Image`}
                       className="w-full h-40 sm:h-48 md:h-40 object-cover"
                       alt={r?.item?.title || 'lost item'}
                       loading="lazy"

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus } from 'lucide-react'; // Icon for the header
+import api from '../api/axios';
 
 const SignupPage = () => {
     const [formData, setFormData] = useState({
@@ -38,21 +39,17 @@ const SignupPage = () => {
         submissionData.append('profileImage', profileImage);
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/register', {
-                method: 'POST',
-                body: submissionData,
+            const res = await api.post('/auth/register', submissionData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
 
-            const data = await res.json();
-            if (res.ok) {
-                localStorage.setItem('token', data.token);
-                navigate(formData.role === 'student' ? '/student/dashboard' : '/teacher/dashboard');
-            } else {
-                alert(data.msg || 'Signup failed');
-            }
+            localStorage.setItem('token', res.data.token);
+            navigate(formData.role === 'student' ? '/student/dashboard' : '/teacher/dashboard');
         } catch (error) {
             console.error('Signup error:', error);
-            alert('An error occurred during signup.');
+            alert(error.response?.data?.msg || 'An error occurred during signup.');
         }
     };
 

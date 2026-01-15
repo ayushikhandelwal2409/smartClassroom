@@ -55,7 +55,7 @@ const StudentList = ({
               <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                 {student.image ? (
                   <img
-                    src={`http://localhost:5000/${student.image}`}
+                    src={`${process.env.REACT_APP_API_URL}/${student.image}`}
                     alt={student.Name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
