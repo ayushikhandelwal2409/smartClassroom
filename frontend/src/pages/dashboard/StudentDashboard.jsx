@@ -39,6 +39,7 @@ const StudentDashboard = () => {
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 
+
   // attendance chart (dummy)
   
   ChartJS.register(ArcElement, Tooltip, Legend);

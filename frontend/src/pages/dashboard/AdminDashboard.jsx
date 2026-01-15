@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TimeTable from "./components/TimeTable";
+
 import LostFound from "../LostFound";
 import {
     LogOut,
@@ -16,6 +16,7 @@ import {
     CalendarDays,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AdminTimetable from "./components/timetable/AdminTimetable";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -39,6 +40,10 @@ const AdminDashboard = () => {
     // Calendar
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
+
+    const [latestLostItem, setLatestLostItem] = useState(null);
+
+
 
     const months = [
         "January", "February", "March", "April", "May", "June",
@@ -66,22 +71,22 @@ const AdminDashboard = () => {
         });
     };
 
-        const isToday = (day) => {
+    const isToday = (day) => {
         if (!day) return false;
         const today = new Date();
         return (
-        day === today.getDate() &&
-        currentDate.getMonth() === today.getMonth() &&
-        currentDate.getFullYear() === today.getFullYear()
+            day === today.getDate() &&
+            currentDate.getMonth() === today.getMonth() &&
+            currentDate.getFullYear() === today.getFullYear()
         );
     };
 
     const isSelected = (day) => {
         if (!day) return false;
         return (
-        day === selectedDate.getDate() &&
-        currentDate.getMonth() === selectedDate.getMonth() &&
-        currentDate.getFullYear() === selectedDate.getFullYear()
+            day === selectedDate.getDate() &&
+            currentDate.getMonth() === selectedDate.getMonth() &&
+            currentDate.getFullYear() === selectedDate.getFullYear()
         );
     };
 
@@ -109,6 +114,19 @@ const AdminDashboard = () => {
             }
         };
         fetchUser();
+
+        // fetch the latest lost item
+        const fetchLatestLostItem = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/lostfound/latest");
+                const data = await res.json();
+                setLatestLostItem(data);
+            } catch (error) {
+                console.error('Error fetching latest lost item:', error);
+            }
+        };
+
+        fetchLatestLostItem();
     }, [navigate]);
 
     // Notice handlers
@@ -147,7 +165,7 @@ const AdminDashboard = () => {
             alert("Server error");
         }
     };
-     useEffect(() => {
+    useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const res = await fetch("http://localhost:5000/api/admin/events");
@@ -176,8 +194,8 @@ const AdminDashboard = () => {
             {/* Navbar */}
             <header className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center shadow">
                 <div className="flex items-center space-x-2">
-                    <button className="lg:hidden" onClick={() => setShowSidebar(true)}>
-                        <Menu />
+                    <button className="p-2 rounded-md hover:bg-blue-700 transition lg:hidden" onClick={() => setShowSidebar(true)}>
+                        <Menu className="w-6 h-6"/>
                     </button>
                     <GraduationCap />
                     <h1 className="font-bold text-xl">Smart Classroom</h1>
@@ -197,6 +215,16 @@ const AdminDashboard = () => {
                 </div>
             </header>
 
+            {/* Flash Message (Lost and Found) */}
+            {activeSection !== 'lost-found' && latestLostItem && (
+                <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-2 flex items-center space-x-2">
+                    <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
+                    <marquee behavior="scroll" direction="left">
+                        Lost: {latestLostItem.title} — {latestLostItem.description}
+                    </marquee>
+                </div>
+            )}
+
             {/* Main */}
             <main className="flex-1 grid lg:grid-cols-[200px_1fr_260px] gap-4 p-4 overflow-y-auto">
                 {/* Sidebar */}
@@ -207,8 +235,8 @@ const AdminDashboard = () => {
                             key={section}
                             onClick={() => setActiveSection(section)}
                             className={`w-full flex items-center px-3 py-2 rounded-lg mb-2 ${activeSection === section
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "hover:bg-gray-100"
+                                ? "bg-blue-100 text-blue-700"
+                                : "hover:bg-gray-100"
                                 }`}
                         >
                             {section === "home" && <Home className="mr-2" />}
@@ -272,7 +300,7 @@ const AdminDashboard = () => {
                     )}
 
 
-                    {activeSection === "timetable" && <TimeTable />}
+                    {activeSection === "timetable" && <AdminTimetable />}
 
                     {activeSection === "notice" && (
                         <div className="bg-white p-6 rounded-xl shadow">
@@ -377,20 +405,19 @@ const AdminDashboard = () => {
                         ))}
                         {getDaysInMonth(currentDate).map((day, index) => (
                             <div
-                            key={index}
-                            onClick={() => handleDateClick(day)}
-                            className={`p-1 rounded cursor-pointer ${
-                            !day
-                                ? "invisible"
-                                : isToday(day)
-                                ? "bg-blue-600 text-white font-bold"
-                                : isSelected(day)
-                                ? "bg-blue-100 text-blue-600 font-semibold"
-                                : "hover:bg-gray-100"
-                            }`}
-                        >
-                {day}
-              </div>
+                                key={index}
+                                onClick={() => handleDateClick(day)}
+                                className={`p-1 rounded cursor-pointer ${!day
+                                        ? "invisible"
+                                        : isToday(day)
+                                            ? "bg-blue-600 text-white font-bold"
+                                            : isSelected(day)
+                                                ? "bg-blue-100 text-blue-600 font-semibold"
+                                                : "hover:bg-gray-100"
+                                    }`}
+                            >
+                                {day}
+                            </div>
                         ))}
                     </div>
                 </aside>
