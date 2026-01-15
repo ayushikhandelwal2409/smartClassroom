@@ -91,6 +91,41 @@ const AdminDashboard = () => {
         fetchUser();
     }, [navigate]);
 
+    const deleteEvent = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this notice?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `http://localhost:5000/api/admin/events/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "x-auth-token": token,
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.msg || "Failed to delete");
+      return;
+    }
+
+    // 🔥 Remove from UI instantly
+    setEvents((prev) => prev.filter((e) => e._id !== id));
+  } catch (err) {
+    alert("Server error");
+  }
+};
+
+
     // Notice handlers
     const handleNoticeChange = (e) => {
         setNoticeForm({ ...noticeForm, [e.target.name]: e.target.value });
@@ -127,7 +162,7 @@ const AdminDashboard = () => {
             alert("Server error");
         }
     };
-     useEffect(() => {
+    useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const res = await fetch("http://localhost:5000/api/admin/events");
@@ -187,8 +222,8 @@ const AdminDashboard = () => {
                             key={section}
                             onClick={() => setActiveSection(section)}
                             className={`w-full flex items-center px-3 py-2 rounded-lg mb-2 ${activeSection === section
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "hover:bg-gray-100"
+                                ? "bg-blue-100 text-blue-700"
+                                : "hover:bg-gray-100"
                                 }`}
                         >
                             {section === "home" && <Home className="mr-2" />}
@@ -242,6 +277,12 @@ const AdminDashboard = () => {
                                                 <p className="text-gray-500 text-xs mt-3">
                                                     📅 {event.date} • 📍 {event.location}
                                                 </p>
+                                                <button
+                                                    onClick={() => deleteEvent(event._id)}
+                                                    className=" my-2 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                                >
+                                                    Delete
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
