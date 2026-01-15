@@ -45,10 +45,15 @@ connectDB();
 
 // enable cross-origin resource Sharing (CORS) to allow frontend requests
 // app.use(cors()); 
-app.use(cors({
-  origin: "https://smartclassroom-frontend.onrender.com",
-  credentials: true
-}));
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: "https://smartroom-frontend.onrender.com",
+    credentials: true,
+  })
+);
+
 
 app.use(express.json()); // parse incoming JSON payloads
 app.use(express.urlencoded({ extended: true }));
