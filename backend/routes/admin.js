@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
-const timetableUpload = require('../middleware/timeTableUpload');
+const timetableUpload = require('../middleware/timetableUpload');
 const Event = require('../models/Event');
 
 
