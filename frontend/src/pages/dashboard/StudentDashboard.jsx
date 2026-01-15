@@ -13,6 +13,8 @@ const StudentDashboard = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+   //  NEW: events / notices state
+  const [events, setEvents] = useState([]);
   // main content state (left menu)
   const [activeSection, setActiveSection] = useState('home');
   // faq accordion state
@@ -217,6 +219,20 @@ const StudentDashboard = () => {
     fetchLatestLostItem();
   }, [navigate]);
 
+  useEffect(() => {
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/admin/events");
+      const data = await res.json();
+      setEvents(data);
+    } catch (err) {
+      console.error("Error fetching events:", err);
+    }
+  };
+
+  fetchEvents();
+}, []);
+
   // Add a loading state while user data is being fetched
   if (!user) {
     return (
@@ -225,7 +241,7 @@ const StudentDashboard = () => {
       </div>
     );
   }
-
+  
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
@@ -378,69 +394,66 @@ const StudentDashboard = () => {
 
         {/* Center Content - 60% width */}
         <div className="space-y-6">
-          {activeSection === 'home' ? (
-            <>
-              <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg md:text-2xl font-semibold">✨ Hey {user.Name}! 👋</h2>
-                  <p className="text-xs md:text-sm mt-2">
-                    Education is the most powerful weapon which you can use to
-                    change the world.
-                  </p>
-                </div>
-                <img
-                  src="https://img.freepik.com/free-vector/graduation-concept-illustration_114360-6266.jpg"
-                  alt="Graduation"
-                  className="w-32 rounded-lg"
-                />
+          {activeSection === "home" ? (
+  <>
+    {/* Welcome Banner */}
+    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow flex items-center justify-between">
+      <div>
+        <h2 className="text-lg md:text-2xl font-semibold">
+          ✨ Hey {user.Name}! 👋
+        </h2>
+        <p className="text-xs md:text-sm mt-2">
+          Education is the most powerful weapon which you can use to change the world.
+        </p>
+      </div>
+      <img
+        src="https://img.freepik.com/free-vector/graduation-concept-illustration_114360-6266.jpg"
+        alt="Graduation"
+        className="w-32 rounded-lg"
+      />
+    </div>
+
+    {/* Events & Notices from ADMIN */}
+    <div>
+      <h3 className="text-center text-lg font-bold mb-4">
+        Upcoming Events & Notices
+      </h3>
+
+      {events.length === 0 ? (
+        <p className="text-center text-gray-500">
+          No events available
+        </p>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {events.map((event) => (
+            <div
+              key={event._id}
+              className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+            >
+              <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
+                <CalendarDays className="w-5 h-5" />
+                <span>{event.type}</span>
               </div>
 
-              <div>
-                <div className="flex justify-center text-lg font-bold mb-4">Upcoming Events & Notices</div>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-                  <div className="bg-white p-5 rounded-xl shadow">
-                    <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
-                      <CalendarDays className="w-5 h-5" />
-                      <span>Event</span>
-                    </div>
-                    <h4 className="text-lg font-semibold">Tech Fest 2025</h4>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Annual technology festival with competitions and workshops
-                    </p>
-                    <p className="text-gray-500 text-xs mt-3">
-                      📅 Saturday, February 15, 2025 • 📍 Main Campus
-                    </p>
-                  </div>
+              <h4 className="text-lg font-semibold">
+                {event.title}
+              </h4>
 
-                  <div className="bg-white p-5 rounded-xl shadow">
-                    <div className="flex items-center space-x-2 text-purple-600 font-semibold mb-2">
-                      ⚡<span>Hackathon</span>
-                    </div>
-                    <h4 className="text-lg font-semibold">AI/ML Hackathon</h4>
-                    <p className="text-gray-600 text-sm mt-1">
-                      48-hour coding competition focused on AI and Machine Learning
-                    </p>
-                    <p className="text-gray-500 text-xs mt-3">
-                      📅 Saturday, January 25, 2025 • 📍 Computer Lab
-                    </p>
-                  </div>
+              <p className="text-gray-600 text-sm mt-1">
+                {event.description}
+              </p>
 
-                  <div className="bg-white p-5 rounded-xl shadow">
-                    <div className="flex items-center space-x-2 text-green-600 font-semibold mb-2">
-                      🛠️<span>Workshop</span>
-                    </div>
-                    <h4 className="text-lg font-semibold">React Development Workshop</h4>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Learn modern React development with hooks and best practices
-                    </p>
-                    <p className="text-gray-500 text-xs mt-3">
-                      📅 Monday, January 20, 2025 • 📍 Tech Center
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : activeSection === 'timetable' ? (
+              <p className="text-gray-500 text-xs mt-3">
+                📅 {event.date} • 📍 {event.location}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </>
+) : 
+ activeSection === 'timetable' ? (
             <div className="overflow-y-auto max-h-[calc(100vh-12rem)] sm:max-h-[calc(100vh-10rem)]" 
               style={{ 
                     scrollbarWidth: "none",

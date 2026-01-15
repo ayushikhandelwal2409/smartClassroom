@@ -17,8 +17,11 @@ router.get('/me', auth, async (req, res) => {
     let user = null;
     if (role === 'Teacher') {
       user = await Teacher.findById(id).select('-password');
-    } else {
+    } else if(role==='Student') {
       user = await Student.findById(id).select('-password');
+    }
+    else{
+      user = await Admin.findById(id).select('-password');
     }
 
     if (!user) return res.status(404).json({ msg: 'User not found' });
@@ -99,6 +102,9 @@ router.post('/login', async (req, res) => {
   }
   if (isTeacher && idString.length !== 6) {
     return res.status(400).json({ msg: 'Teacher ID must be 6 digits' });
+  }
+  if (isAdmin && idString.length !== 6) {
+    return res.status(400).json({ msg: 'Admin ID must be 6 digits' });
   }
 
   try {

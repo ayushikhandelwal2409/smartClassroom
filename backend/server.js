@@ -37,9 +37,11 @@ connectDB();
 // seedTeachers();
 // seedCourses();
 // seedBlocks();
-// seedAdmin();
+//seedAdmin();
 
 // middleware
+
+app.use("/api/events", require("./routes/event"));
 
 app.use(cors()); // enable cross-origin resource Sharing (CORS) to allow frontend requests
 

@@ -10,6 +10,9 @@ const {getDashboardStats, getAllStudents, getAllTeachers, getLostItems, updateLo
 // dashboard
 router.get('/stats', auth, isAdmin, getDashboardStats);
 
+// router.post("/events", auth, isAdmin, createEvent);
+
+
 // students
 router.get('/students', auth, isAdmin, getAllStudents);
 // router.patch('/students/:id', auth, isAdmin, toggleStudent);

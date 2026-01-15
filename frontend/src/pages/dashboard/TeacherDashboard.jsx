@@ -36,6 +36,7 @@ const TeacherDashboard = () => {
   const [uploadedPhoto, setUploadedPhoto] = useState(null);
   const [attendanceData, setAttendanceData] = useState({});
   const [students, setStudents] = useState([]);
+  const [events, setEvents] = useState([]);
 
   // to store latest lost item
   const [latestLostItem, setLatestLostItem] = useState(null);
@@ -110,6 +111,19 @@ const TeacherDashboard = () => {
       return newDate;
     });
   };
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/admin/events");
+        const data = await res.json();
+        setEvents(data);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+      }
+    };
+  
+    fetchEvents();
+  }, []);
 
   const handleDateClick = (day) => {
     if (day) {
@@ -285,53 +299,47 @@ const TeacherDashboard = () => {
             </div>
 
             {/* Upcoming Events */}
-            <div>
-              <h3 className="flex justify-center text-lg font-bold mb-4">Upcoming Events & Notices</h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-                {/* Event Card */}
-                <div className="bg-white p-5 rounded-xl shadow">
-                  <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
-                    <CalendarDays className="w-5 h-5" />
-                    <span>Event</span>
-                  </div>
-                  <h4 className="text-lg font-semibold">Tech Fest 2025</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Annual technology festival with competitions and workshops
-                  </p>
-                  <p className="text-gray-500 text-xs mt-3">
-                    📅 Saturday, February 15, 2025 • 📍 Main Campus
-                  </p>
+              <>
+            
+                {/* Events & Notices from ADMIN */}
+                <div>
+                  <h3 className="text-center text-lg font-bold mb-4">
+                    Upcoming Events & Notices
+                  </h3>
+            
+                  {events.length === 0 ? (
+                    <p className="text-center text-gray-500">
+                      No events available
+                    </p>
+                  ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {events.map((event) => (
+                        <div
+                          key={event._id}
+                          className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+                        >
+                          <div className="flex items-center space-x-2 text-blue-600 font-semibold mb-2">
+                            <CalendarDays className="w-5 h-5" />
+                            <span>{event.type}</span>
+                          </div>
+            
+                          <h4 className="text-lg font-semibold">
+                            {event.title}
+                          </h4>
+            
+                          <p className="text-gray-600 text-sm mt-1">
+                            {event.description}
+                          </p>
+            
+                          <p className="text-gray-500 text-xs mt-3">
+                            📅 {event.date} • 📍 {event.location}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-
-                {/* Workshop Card */}
-                <div className="bg-white p-5 rounded-xl shadow">
-                  <div className="flex items-center space-x-2 text-green-600 font-semibold mb-2">
-                    🛠️<span>Workshop</span>
-                  </div>
-                  <h4 className="text-lg font-semibold">React Development Workshop</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Learn modern React development with hooks and best practices
-                  </p>
-                  <p className="text-gray-500 text-xs mt-3">
-                    📅 Monday, January 20, 2025 • 📍 Tech Center
-                  </p>
-                </div>
-
-                {/* Seminar Card */}
-                <div className="bg-white p-5 rounded-xl shadow">
-                  <div className="flex items-center space-x-2 text-orange-600 font-semibold mb-2">
-                    🎓<span>Seminar</span>
-                  </div>
-                  <h4 className="text-lg font-semibold">Career Guidance Session</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Industry experts sharing insights on career paths in tech
-                  </p>
-                  <p className="text-gray-500 text-xs mt-3">
-                    📅 Friday, January 17, 2025 • 📍 Auditorium
-                  </p>
-                </div>
-              </div>
-            </div>
+              </>
           </div>
         );
     }
