@@ -38,6 +38,7 @@ const AdminDashboard = () => {
 
     // Calendar
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     const months = [
         "January", "February", "March", "April", "May", "June",
@@ -63,6 +64,25 @@ const AdminDashboard = () => {
             d.setMonth(d.getMonth() + (dir === "prev" ? -1 : 1));
             return d;
         });
+    };
+
+        const isToday = (day) => {
+        if (!day) return false;
+        const today = new Date();
+        return (
+        day === today.getDate() &&
+        currentDate.getMonth() === today.getMonth() &&
+        currentDate.getFullYear() === today.getFullYear()
+        );
+    };
+
+    const isSelected = (day) => {
+        if (!day) return false;
+        return (
+        day === selectedDate.getDate() &&
+        currentDate.getMonth() === selectedDate.getMonth() &&
+        currentDate.getFullYear() === selectedDate.getFullYear()
+        );
     };
 
     const handleLogout = () => {
@@ -396,8 +416,22 @@ const AdminDashboard = () => {
                         {daysOfWeek.map(d => (
                             <div key={d} className="font-medium text-gray-500">{d}</div>
                         ))}
-                        {getDaysInMonth(currentDate).map((d, i) => (
-                            <div key={i} className="p-1">{d}</div>
+                        {getDaysInMonth(currentDate).map((day, index) => (
+                            <div
+                            key={index}
+                            onClick={() => handleDateClick(day)}
+                            className={`p-1 rounded cursor-pointer ${
+                            !day
+                                ? "invisible"
+                                : isToday(day)
+                                ? "bg-blue-600 text-white font-bold"
+                                : isSelected(day)
+                                ? "bg-blue-100 text-blue-600 font-semibold"
+                                : "hover:bg-gray-100"
+                            }`}
+                        >
+                {day}
+              </div>
                         ))}
                     </div>
                 </aside>

@@ -79,7 +79,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            className="text-4xl md:text-5xl font-bold text-blue-700 mb-6"
+            className="text-4xl md:text-5xl font-bold text-blue-600 mb-6"
           >
             Welcome to Smart Classroom Portal
           </motion.h2>

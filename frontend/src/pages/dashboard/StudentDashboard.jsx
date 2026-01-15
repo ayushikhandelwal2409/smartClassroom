@@ -38,12 +38,6 @@ const StudentDashboard = () => {
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// for image carousel
-  const placeholderImages = [
-    "https://source.unsplash.com/800x400/?college,students",
-    "https://source.unsplash.com/800x400/?library,education",
-    "https://source.unsplash.com/800x400/?graduation,ceremony",
-  ];
 
   // attendance chart (dummy)
   
