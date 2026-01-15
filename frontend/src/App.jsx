@@ -7,7 +7,7 @@ import AdminDashboard from "./pages/dashboard/AdminDashboard";
 
 function App() {
   return (
-    <Router basename="/smartClassroom">
+    <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/student/dashboard" element={<StudentDashboard />} />
