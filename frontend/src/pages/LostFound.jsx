@@ -209,7 +209,7 @@ const LostFound = () => {
                 >
                   <div className="w-full rounded-lg overflow-hidden bg-gray-100">
                     <img
-                      src={r?.item?.image_url ? `${process.env.REACT_APP_API_URL}/${r.item.image_url}` : `https://via.placeholder.com/400x300?text=No+Image`}
+                      src={r?.item?.image_url ? `${import.meta.env.VITE_API_URL}/${r.item.image_url}` : `https://via.placeholder.com/400x300?text=No+Image`}
                       className="w-full h-40 sm:h-48 md:h-40 object-cover"
                       alt={r?.item?.title || 'lost item'}
                       loading="lazy"

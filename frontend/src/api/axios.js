@@ -1,11 +1,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || "https://smartclassroom-2.onrender.com",
   withCredentials: true,
 });
 
-// Request interceptor to automatically attach auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -14,9 +13,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default api;

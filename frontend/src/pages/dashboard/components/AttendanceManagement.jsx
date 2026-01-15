@@ -458,7 +458,7 @@ const AttendanceManagement = ({ user, teacherTimetable, sectionsToTeach, subject
                       <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                         {student.image ? (
                           <img
-                            src={`${process.env.REACT_APP_API_URL}/${student.image}`}
+                            src={`${import.meta.env.VITE_API_URL}/${student.image}`}
                             alt={student.Name}
                             className="w-full h-full object-cover"
                           />
@@ -634,7 +634,7 @@ const AttendanceManagement = ({ user, teacherTimetable, sectionsToTeach, subject
                             <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
                               {student.image ? (
                                 <img
-                                  src={`${process.env.REACT_APP_API_URL}/${student.image}`}
+                                  src={`${import.meta.env.VITE_API_URL}/${student.image}`}
                                   alt={student.Name}
                                   className="w-full h-full object-cover"
                                 />

@@ -577,7 +577,7 @@ const TeacherDashboard = () => {
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                 {user.image ? (
                   <img 
-                    src={`${process.env.REACT_APP_API_URL}/${user.image}`} 
+                    src={`${import.meta.env.VITE_API_URL}/${user.image}`} 
                     alt={user.Name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -798,7 +798,7 @@ const TeacherDashboard = () => {
                     {user.image ? (
                       <>
                         <img 
-                          src={`${process.env.REACT_APP_API_URL}/${user.image}`} 
+                          src={`${import.meta.env.VITE_API_URL}/${user.image}`} 
                           alt={user.Name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
