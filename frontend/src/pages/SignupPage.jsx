@@ -39,7 +39,7 @@ const SignupPage = () => {
         submissionData.append('profileImage', profileImage);
 
         try {
-            const res = await api.post('/auth/register', submissionData, {
+            const res = await api.post('/api/auth/register', submissionData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

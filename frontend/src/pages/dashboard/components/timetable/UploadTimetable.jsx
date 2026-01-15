@@ -9,7 +9,7 @@ const UploadTimetable = () => {
         formData.append("file", file);
 
         try {
-            await api.post("/admin/timetable/excel", formData, {
+            await api.post("/api/admin/timetable/excel", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

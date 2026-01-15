@@ -151,7 +151,7 @@ const AttendanceManagement = ({ user, teacherTimetable, sectionsToTeach, subject
   const fetchStudents = async (sectionName) => {
     setLoading(true);
     try {
-      const response = await api.get(`/students/section/${sectionName}`);
+      const response = await api.get(`/api/students/section/${sectionName}`);
       const data = response.data;
       setStudents(data.students || []);
       // Initialize attendance state

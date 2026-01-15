@@ -10,7 +10,7 @@ const EditSlotModal = ({ slot, onClose, onSaved }) => {
 
     const save = async () => {
         try {
-            await api.patch(`/admin/timetable/${slot.section}`, {
+            await api.patch(`/api/admin/timetable/${slot.section}`, {
                 day: slot.day,
                 time: slot.time,
                 subjectCode,

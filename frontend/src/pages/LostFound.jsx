@@ -27,7 +27,7 @@ const LostFound = () => {
 
   const fetchItems = async () => {
         try {
-          const res = await api.get("/lostfound/all");
+          const res = await api.get("/api/lostfound/all");
           setResults(res.data);
         } catch (err) {
           console.error(err);
@@ -43,7 +43,7 @@ const LostFound = () => {
     fd.append("image", form.image);
 
     try {
-      const res = await api.post("/lostfound/add", fd, {
+      const res = await api.post("/api/lostfound/add", fd, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -154,7 +154,7 @@ const LostFound = () => {
               // If user entered text
               if (searchQuery.trim() !== "") {
                 try {
-                  const res = await api.post("/lostfound/search", { query: searchQuery });
+                  const res = await api.post("/api/lostfound/search", { query: searchQuery });
                   setResults(res.data);
                 } catch (err) {
                   console.error(err);
@@ -166,7 +166,7 @@ const LostFound = () => {
                   const fd = new FormData();
                   fd.append("image", searchImage);
 
-                  const res = await api.post("/lostfound/search-image", fd, {
+                  const res = await api.post("/api/lostfound/search-image", fd, {
                     headers: {
                       'Content-Type': 'multipart/form-data'
                     }

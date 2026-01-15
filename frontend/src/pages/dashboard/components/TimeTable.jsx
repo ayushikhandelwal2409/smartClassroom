@@ -61,7 +61,7 @@ const TimeTable = ({ section }) => {
       try {
         setLoading(true);
         setError("");
-        const res = await api.get(`/timetable/${section}`, {
+        const res = await api.get(`/api/timetable/${section}`, {
           signal: controller.signal,
         });
         setTimetable(res.data.timetable || []);

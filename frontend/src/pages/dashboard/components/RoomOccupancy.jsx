@@ -11,7 +11,7 @@ const RoomOccupancy = () => {
 
   const fetchOccupancy = async () => {
     try {
-      const response = await api.get('/blocks/occupancy');
+      const response = await api.get('/api/blocks/occupancy');
       setOccupancyData(response.data.occupancy || []);
       setLastUpdated(new Date());
       setError(null);

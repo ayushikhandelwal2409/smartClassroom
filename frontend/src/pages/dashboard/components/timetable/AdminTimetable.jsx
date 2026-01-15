@@ -81,7 +81,7 @@ const AdminTimetable = () => {
     const fetchTimetable = async () => {
         try {
             setLoading(true);
-            const res = await api.get(`/timetable/${section}`);
+            const res = await api.get(`/api/timetable/${section}`);
             setTimetable(res.data.timetable || []);
         } catch (error) {
             setError(error.response?.data?.msg || "Failed to load timetable");

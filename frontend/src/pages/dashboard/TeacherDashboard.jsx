@@ -115,7 +115,7 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await api.get("/admin/events");
+        const res = await api.get("/api/admin/events");
         setEvents(res.data);
       } catch (err) {
         console.error("Error fetching events:", err);
@@ -354,7 +354,7 @@ const TeacherDashboard = () => {
       }
 
       try {
-        const response = await api.get('/auth/me');
+        const response = await api.get('/api/auth/me');
         setUser(response.data);
         // after user loads, fetch timetable metadata and schedule
         await Promise.all([
@@ -377,7 +377,7 @@ const TeacherDashboard = () => {
     // fetch the latest lost item
     const fetchLatestLostItem = async () => {
       try {
-        const res = await api.get("/lostfound/latest");
+        const res = await api.get("/api/lostfound/latest");
         setLatestLostItem(res.data);
       } catch (error) {
         console.error('Error fetching latest lost item:', error);
@@ -390,7 +390,7 @@ const TeacherDashboard = () => {
 
   const fetchBuildingBlocks = async () => {
     try {
-      const res = await api.get('/building-blocks');
+      const res = await api.get('/api/building-blocks');
       const blocks = res.data;
       const block = blocks && blocks[0];
       const slots = block?.timeSlots || [];
@@ -423,7 +423,7 @@ const TeacherDashboard = () => {
 
   const fetchTeacherSchedule = async () => {
     try {
-      const res = await api.get('/schedules/teacher/me');
+      const res = await api.get('/api/schedules/teacher/me');
       setTeacherSchedule(res.data || []);
     } catch (e) {
       console.error('Failed to load teacher schedule', e);
@@ -439,7 +439,7 @@ const TeacherDashboard = () => {
       if (userInfo?.sectionsToTeach && userInfo.sectionsToTeach.length > 0) {
         console.log('Fetching timetables for sections:', userInfo.sectionsToTeach);
         const sectionPromises = userInfo.sectionsToTeach.map(sectionName => 
-          api.get(`/timetable/${sectionName}`)
+          api.get(`/api/timetable/${sectionName}`)
         );
         
         const responses = await Promise.all(sectionPromises);

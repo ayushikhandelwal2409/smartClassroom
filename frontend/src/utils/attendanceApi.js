@@ -16,7 +16,7 @@ export const fetchTodayClasses = async (teacherId) => {
     const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     
     // Fetch teacher schedule
-    const scheduleRes = await api.get('/schedules/teacher/me');
+    const scheduleRes = await api.get('/api/schedules/teacher/me');
     const schedules = scheduleRes.data;
     
     // Filter today's classes
@@ -39,7 +39,7 @@ export const fetchTodayClasses = async (teacherId) => {
  */
 export const fetchSectionStudents = async (sectionName) => {
   try {
-    const response = await api.get(`/students/section/${sectionName}`);
+    const response = await api.get(`/api/students/section/${sectionName}`);
     return response.data.students || [];
   } catch (error) {
     console.error('Error fetching section students:', error);
@@ -56,7 +56,7 @@ export const fetchSectionStudents = async (sectionName) => {
 export const getStudentSubjectAttendance = async (studentId, subjectCode) => {
   try {
     const response = await api.get(
-      `/attendance/student/${studentId}?subjectCode=${subjectCode}`
+      `/api/attendance/student/${studentId}?subjectCode=${subjectCode}`
     );
     const data = response.data;
     
@@ -83,7 +83,7 @@ export const getStudentSubjectAttendance = async (studentId, subjectCode) => {
  */
 export const markAttendance = async (attendanceData) => {
   try {
-    const response = await api.post('/attendance/mark', {
+    const response = await api.post('/api/attendance/mark', {
       ...attendanceData,
       markedBy: 'manual'
     });
@@ -101,7 +101,7 @@ export const markAttendance = async (attendanceData) => {
  */
 export const markBulkAttendance = async (attendanceList) => {
   try {
-    const response = await api.post('/attendance/mark-bulk', { attendanceList });
+    const response = await api.post('/api/attendance/mark-bulk', { attendanceList });
     return response.data;
   } catch (error) {
     console.error('Error marking bulk attendance:', error);
@@ -125,7 +125,7 @@ export const scanFaceRecognition = async (imageFile, section, subjectCode, perio
     formData.append('subjectCode', subjectCode);
     formData.append('period', period.toString());
     
-    const response = await api.post('/face/scan', formData, {
+    const response = await api.post('/api/face/scan', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -145,7 +145,7 @@ export const scanFaceRecognition = async (imageFile, section, subjectCode, perio
  */
 export const confirmFaceRecognitionAttendance = async (attendanceList) => {
   try {
-    const response = await api.post('/attendance/mark-bulk', {
+    const response = await api.post('/api/attendance/mark-bulk', {
       attendanceList: attendanceList.map(item => ({
         ...item,
         markedBy: 'face-recognition'
@@ -165,7 +165,7 @@ export const confirmFaceRecognitionAttendance = async (attendanceList) => {
  */
 export const getStudentAttendance = async (studentId) => {
   try {
-    const response = await api.get(`/attendance/student/${studentId}`);
+    const response = await api.get(`/api/attendance/student/${studentId}`);
     return response.data.attendance || [];
   } catch (error) {
     console.error('Error fetching student attendance:', error);
@@ -183,7 +183,7 @@ export const getStudentAttendance = async (studentId) => {
 export const getMonthlyAttendanceReport = async (studentId, month, year) => {
   try {
     const response = await api.get(
-      `/attendance/report/monthly?studentId=${studentId}&month=${month}&year=${year}`
+      `/api/attendance/report/monthly?studentId=${studentId}&month=${month}&year=${year}`
     );
     return response.data;
   } catch (error) {
@@ -203,7 +203,7 @@ export const getMonthlyAttendanceReport = async (studentId, month, year) => {
 export const checkAttendanceMarked = async (section, subjectCode, date, period) => {
   try {
     const response = await api.get(
-      `/attendance/check?section=${section}&subjectCode=${subjectCode}&date=${date}&period=${period}`
+      `/api/attendance/check?section=${section}&subjectCode=${subjectCode}&date=${date}&period=${period}`
     );
     return response.data.marked || false;
   } catch (error) {

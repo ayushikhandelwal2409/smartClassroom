@@ -66,7 +66,7 @@ const StudentDashboard = () => {
 
   const fetchAttendanceOverview = async () => {
     try {
-      const res = await api.get(`/attendance/student/${user.studentId}/overall`);
+      const res = await api.get(`/api/attendance/student/${user.studentId}/overall`);
       const data = res.data;
       setPieChartData({
         labels: ["Present", "Absent"],
@@ -170,7 +170,7 @@ const StudentDashboard = () => {
       }
 
       try {
-        const response = await api.get('/auth/me');
+        const response = await api.get('/api/auth/me');
         setUser(response.data); // Save user data in state
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -184,7 +184,7 @@ const StudentDashboard = () => {
   // fetch the latest lost item
     const fetchLatestLostItem = async () => {
       try {
-        const res = await api.get("/lostfound/latest");
+        const res = await api.get("/api/lostfound/latest");
         setLatestLostItem(res.data);
       } catch (error) {
         console.error('Error fetching latest lost item:', error);
@@ -197,7 +197,7 @@ const StudentDashboard = () => {
   useEffect(() => {
   const fetchEvents = async () => {
     try {
-      const res = await api.get("/admin/events");
+      const res = await api.get("/api/admin/events");
       setEvents(res.data);
     } catch (err) {
       console.error("Error fetching events:", err);

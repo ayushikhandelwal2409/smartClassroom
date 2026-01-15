@@ -65,7 +65,7 @@ const TeacherTimeTable = ({ teacherId, sectionsToTeach, subjectTaught }) => {
         
         // Fetch all sections that the teacher teaches
         const sectionPromises = sectionsToTeach.map(sectionName => 
-          api.get(`/timetable/${sectionName}`, {
+          api.get(`/api/timetable/${sectionName}`, {
             signal: controller.signal,
           })
         );

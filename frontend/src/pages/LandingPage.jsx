@@ -18,7 +18,7 @@ export default function LandingPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/auth/login', {
+      const response = await api.post('/api/auth/login', {
         userId,
         password,
         role

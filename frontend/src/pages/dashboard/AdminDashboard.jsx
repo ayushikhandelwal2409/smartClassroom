@@ -103,7 +103,7 @@ const AdminDashboard = () => {
             if (!token) return navigate("/");
 
             try {
-                const res = await api.get("/auth/me");
+                const res = await api.get("/api/auth/me");
                 setUser(res.data);
             } catch {
                 localStorage.removeItem("token");
@@ -115,7 +115,7 @@ const AdminDashboard = () => {
         // fetch the latest lost item
         const fetchLatestLostItem = async () => {
             try {
-                const res = await api.get("/lostfound/latest");
+                const res = await api.get("/api/lostfound/latest");
                 setLatestLostItem(res.data);
             } catch (error) {
                 console.error('Error fetching latest lost item:', error);
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
   if (!confirmDelete) return;
 
   try {
-    await api.delete(`/admin/events/${id}`);
+    await api.delete(`/api/admin/events/${id}`);
     // 🔥 Remove from UI instantly
     setEvents((prev) => prev.filter((e) => e._id !== id));
   } catch (err) {
@@ -149,7 +149,7 @@ const AdminDashboard = () => {
 
     const submitNotice = async () => {
         try {
-            await api.post("/admin/events", noticeForm);
+            await api.post("/api/admin/events", noticeForm);
             alert("Notice created successfully ✅");
             setNoticeForm({
                 type: "Notice",
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const res = await api.get("/admin/events");
+                const res = await api.get("/api/admin/events");
                 setEvents(res.data);
             } catch (err) {
                 console.error("Error fetching events:", err);
