@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://smartclassroom-2.onrender.com",
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL || "https://smartclassroom-2.onrender.com"
 });
 
 api.interceptors.request.use(

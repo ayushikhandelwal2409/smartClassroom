@@ -45,14 +45,18 @@ connectDB();
 
 // enable cross-origin resource Sharing (CORS) to allow frontend requests
 // app.use(cors()); 
-const cors = require("cors");
 
 app.use(
   cors({
     origin: "https://smartroom-frontend.onrender.com",
-    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "x-auth-token"],
   })
 );
+
+// ✅ VERY IMPORTANT: handle preflight
+app.options("*", cors());
+
 
 
 app.use(express.json()); // parse incoming JSON payloads
