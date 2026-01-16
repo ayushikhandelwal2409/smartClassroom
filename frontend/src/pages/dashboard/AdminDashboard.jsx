@@ -3,227 +3,167 @@ import api from "../../api/axios";
 
 import LostFound from "../LostFound";
 import {
-    LogOut,
-    User,
-    Home,
-    Clock,
-    AlertTriangle,
-    MapPin,
-    GraduationCap,
-    Menu,
-    X,
-    ChevronLeft,
-    ChevronRight,
-    CalendarDays,
+  LogOut,
+  User,
+  Home,
+  Clock,
+  AlertTriangle,
+  MapPin,
+  GraduationCap,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminTimetable from "./components/timetable/AdminTimetable";
 
 const AdminDashboard = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [user, setUser] = useState(null);
-    const [activeSection, setActiveSection] = useState("home");
-    const [showSidebar, setShowSidebar] = useState(false);
-    const [showProfileSidebar, setShowProfileSidebar] = useState(false);
-    const [events, setEvents] = useState([]);
+  const [user, setUser] = useState(null);
+  const [activeSection, setActiveSection] = useState("home");
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [showProfileSidebar, setShowProfileSidebar] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [latestLostItem, setLatestLostItem] = useState(null);
 
-    // Notice form state
-    const [showNoticeForm, setShowNoticeForm] = useState(false);
-    const [noticeForm, setNoticeForm] = useState({
+  // Notice form
+  const [showNoticeForm, setShowNoticeForm] = useState(false);
+  const [noticeForm, setNoticeForm] = useState({
+    type: "Notice",
+    title: "",
+    description: "",
+    date: "",
+    location: "",
+  });
+
+  // Calendar
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+  const daysOfWeek = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    const days = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let d = 1; d <= lastDate; d++) days.push(d);
+    return days;
+  };
+
+  const navigateMonth = (dir) => {
+    setCurrentDate(prev => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() + (dir === "prev" ? -1 : 1));
+      return d;
+    });
+  };
+
+  const handleDateClick = (day) => {
+    if (!day) return;
+    const newDate = new Date(currentDate);
+    newDate.setDate(day);
+    setSelectedDate(newDate);
+  };
+
+  const isToday = (day) => {
+    if (!day) return false;
+    const today = new Date();
+    return (
+      day === today.getDate() &&
+      currentDate.getMonth() === today.getMonth() &&
+      currentDate.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const isSelected = (day) => {
+    if (!day) return false;
+    return (
+      day === selectedDate.getDate() &&
+      currentDate.getMonth() === selectedDate.getMonth() &&
+      currentDate.getFullYear() === selectedDate.getFullYear()
+    );
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
+  // ================= API CALLS (FIXED) =================
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const userRes = await api.get("/api/auth/me");
+        setUser(userRes.data);
+
+        const eventsRes = await api.get("/api/admin/events");
+        setEvents(eventsRes.data);
+
+        const lostRes = await api.get("/api/lostfound/latest");
+        setLatestLostItem(lostRes.data);
+      } catch (err) {
+        localStorage.removeItem("token");
+        navigate("/");
+      }
+    };
+    init();
+  }, [navigate]);
+
+  const deleteEvent = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this notice?")) return;
+    try {
+      await api.delete(`/api/admin/events/${id}`);
+      setEvents(prev => prev.filter(e => e._id !== id));
+    } catch {
+      alert("Server error");
+    }
+  };
+
+  const handleNoticeChange = (e) => {
+    setNoticeForm({ ...noticeForm, [e.target.name]: e.target.value });
+  };
+
+  const submitNotice = async () => {
+    try {
+      await api.post("/api/admin/events", noticeForm);
+      alert("Notice created successfully ✅");
+      setShowNoticeForm(false);
+      setNoticeForm({
         type: "Notice",
         title: "",
         description: "",
         date: "",
         location: "",
-    });
+      });
 
-    // Calendar
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(new Date());
+      const res = await api.get("/api/admin/events");
+      setEvents(res.data);
+    } catch {
+      alert("Server error");
+    }
+  };
 
-    const [latestLostItem, setLatestLostItem] = useState(null);
-
-
-
-    const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    const getDaysInMonth = (date) => {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const firstDay = new Date(year, month, 1).getDay();
-        const lastDate = new Date(year, month + 1, 0).getDate();
-
-        const days = [];
-        for (let i = 0; i < firstDay; i++) days.push(null);
-        for (let d = 1; d <= lastDate; d++) days.push(d);
-        return days;
-    };
-
-    const navigateMonth = (dir) => {
-        setCurrentDate(prev => {
-            const d = new Date(prev);
-            d.setMonth(d.getMonth() + (dir === "prev" ? -1 : 1));
-            return d;
-        });
-    };
-
-    const isToday = (day) => {
-        if (!day) return false;
-        const today = new Date();
-        return (
-            day === today.getDate() &&
-            currentDate.getMonth() === today.getMonth() &&
-            currentDate.getFullYear() === today.getFullYear()
-        );
-    };
-
-    const isSelected = (day) => {
-        if (!day) return false;
-        return (
-            day === selectedDate.getDate() &&
-            currentDate.getMonth() === selectedDate.getMonth() &&
-            currentDate.getFullYear() === selectedDate.getFullYear()
-        );
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/");
-    };
-
-    // Fetch admin profile
-    useEffect(() => {
-        const fetchUser = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) return navigate("/");
-
-            try {
-                const res = await fetch("http://localhost:5000/api/auth/me", {
-                    headers: { "x-auth-token": token },
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                setUser(data);
-            } catch {
-                localStorage.removeItem("token");
-                navigate("/");
-            }
-        };
-        fetchUser();
-
-        // fetch the latest lost item
-        const fetchLatestLostItem = async () => {
-            try {
-                const res = await fetch("http://localhost:5000/api/lostfound/latest");
-                const data = await res.json();
-                setLatestLostItem(data);
-            } catch (error) {
-                console.error('Error fetching latest lost item:', error);
-            }
-        };
-
-        fetchLatestLostItem();
-    }, [navigate]);
-
-    const deleteEvent = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this notice?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(
-      `http://localhost:5000/api/admin/events/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "x-auth-token": token,
-        },
-      }
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading Admin Dashboard...
+      </div>
     );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.msg || "Failed to delete");
-      return;
-    }
-
-    //  Remove from UI instantly
-    setEvents((prev) => prev.filter((e) => e._id !== id));
-  } catch (err) {
-    alert("Server error");
   }
-};
 
-
-    // Notice handlers
-    const handleNoticeChange = (e) => {
-        setNoticeForm({ ...noticeForm, [e.target.name]: e.target.value });
-    };
-
-    const submitNotice = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await fetch("http://localhost:5000/api/admin/events", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-auth-token": token,
-                },
-                body: JSON.stringify(noticeForm),
-            });
-
-            const data = await res.json();
-            if (!res.ok) {
-                alert(data.msg || "Failed to create notice");
-                return;
-            }
-
-            alert("Notice created successfully ✅");
-            setNoticeForm({
-                type: "Notice",
-                title: "",
-                description: "",
-                date: "",
-                location: "",
-            });
-            setShowNoticeForm(false);
-        } catch (err) {
-            alert("Server error");
-        }
-    };
-    useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const res = await fetch("http://localhost:5000/api/admin/events");
-                const data = await res.json();
-                setEvents(data);
-            } catch (err) {
-                console.error("Error fetching events:", err);
-            }
-        };
-
-        fetchEvents();
-    }, []);
-
-    if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                Loading Admin Dashboard...
-            </div>
-        );
-    }
-
-    const menuItems = ["home", "timetable", "notice", "lost-found"];
+  const menuItems = ["home", "timetable", "notice", "lost-found"];
 
     return (
         <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
